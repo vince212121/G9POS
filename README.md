@@ -3,9 +3,10 @@ Point of sale application
 
 ## To run with Docker
 1. Install docker desktop
-2. Run ```docker-compose up -d``` to start in the background or ```docker-compose up``` in the root directory where ```docker-compose.yml``` install
-3. To stop the container, use ```docker-compose down``` if started in the background or Ctrl + C if you used the other command
-4. To use ```manage.py``` commands, use ```docker-compose exec backend python manage.py (insert command)```
+2. Install WSL2 
+3. Run ```docker-compose up -d``` to start in the background or ```docker-compose up``` in the root directory where ```docker-compose.yml``` install
+4. To stop the container, use ```docker-compose down``` if started in the background or Ctrl + C if you used the other command
+5. To use ```manage.py``` commands, use ```docker-compose exec backend python manage.py (insert command)```
 
 ## To run this locally
 1. Install the latest version of python
