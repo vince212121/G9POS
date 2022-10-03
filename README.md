@@ -7,7 +7,7 @@ Point of sale application
 3. To stop the container, use ```docker-compose down``` if started in the background or Ctrl + C if you used the other command
 4. To use ```manage.py``` commands, use ```docker-compose exec backend python manage.py (insert command)```
 
-## To run this locally:
+## To run this locally
 1. Install the latest version of python
 2. Set up a virtual env: ```python -m venv .venv``` in the root directory
 3. Start the virtual environment with ```. .\.venv\Scripts\activate``` (this will need to be ran every time you want to run this)
