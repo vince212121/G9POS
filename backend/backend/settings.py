@@ -25,6 +25,8 @@ SECRET_KEY = 'django-insecure-#ispy(c&#y_1*s3nf$t)vwdpvfv3r!ui0=h2k5j2ayh$nu+@k5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = 'api.User'
+
 ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
