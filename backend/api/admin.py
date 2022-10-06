@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from api.models import Inventory, PreviousCustomerOrder, PreviousVendorOrder, CustomerProfile, User
+from api.models import Inventory, PreviousCustomerOrder, PreviousVendorOrder, CustomerProfile, User, VendorOrder, CustomerOrder
 # Register your models here.
 
 class staffAdmin(UserAdmin):
@@ -15,4 +15,6 @@ admin.site.register(Inventory)
 admin.site.register(PreviousCustomerOrder)
 admin.site.register(PreviousVendorOrder)
 admin.site.register(CustomerProfile)
+admin.site.register(CustomerOrder)
+admin.site.register(VendorOrder)
 admin.site.register(User, staffAdmin)

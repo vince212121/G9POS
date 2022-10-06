@@ -1,3 +1,5 @@
+from datetime import datetime
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -28,8 +30,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=True,
     )
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False) 
-    is_admin = models.BooleanField(default=False) 
+    is_staff = models.BooleanField(default=False, help_text='Used to access admin page') 
+    is_owner = models.BooleanField(default=False, help_text='Used for owner privilege')
+    is_employee = models.BooleanField(default=False, help_text='Used for employee privilege')
     date_joined = models.DateTimeField(verbose_name="date joined", auto_now_add=True)
 
     USERNAME_FIELD = 'email'
@@ -49,19 +52,49 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Inventory(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField()
-    stock = models.IntegerField()
+    quantity = models.IntegerField(default=0)
+    quantity_sold = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=6, decimal_places=2)
 
-class PreviousCustomerOrder(models.Model):
-    name = models.CharField(max_length=128)
-
-
-class PreviousVendorOrder(models.Model):
-    name = models.CharField(max_length=128)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    quantity_ordered = models.IntegerField()
+    def __str__(self):
+        return self.name
 
 class CustomerProfile(models.Model):
     name = models.CharField(max_length=128)
     email = models.EmailField(max_length=128)
     phone_number = models.CharField(max_length=15)
+
+    def __str__(self):
+        return self.name
+
+class PreviousCustomerOrder(models.Model):
+    name = models.CharField(max_length=128, default=None, blank=True)
+    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
+
+    def __str__(self):
+        return f"Customer {self.id}" if self.name is None else self.name
+
+class PreviousVendorOrder(models.Model):
+    name = models.CharField(max_length=128)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class CustomerOrder(models.Model):
+    previousCustomer = models.ForeignKey(PreviousCustomerOrder, on_delete=models.CASCADE)
+    item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Customer {self.previousCustomer.id}" if self.previousCustomer.name is None else self.previousCustomer.name
+
+class VendorOrder(models.Model):
+    previousVendor = models.ForeignKey(PreviousVendorOrder, on_delete=models.CASCADE)
+    item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    quantity_ordered = models.IntegerField()
+
+    def __str__(self):
+        return self.previousVendor.name
