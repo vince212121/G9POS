@@ -48,6 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+# TODO: might need a category table?
 class Inventory(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField()
