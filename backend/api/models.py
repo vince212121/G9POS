@@ -1,5 +1,4 @@
 from datetime import datetime
-from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -77,7 +76,6 @@ class PreviousCustomerOrder(models.Model):
 
 class PreviousVendorOrder(models.Model):
     name = models.CharField(max_length=128)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
     date_purchased = models.DateTimeField(default=datetime.now, blank=True)
 
     def __str__(self):
@@ -95,6 +93,7 @@ class VendorOrder(models.Model):
     previousVendor = models.ForeignKey(PreviousVendorOrder, on_delete=models.CASCADE)
     item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     quantity_ordered = models.IntegerField()
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
     def __str__(self):
         return self.previousVendor.name
