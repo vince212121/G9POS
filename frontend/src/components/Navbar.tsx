@@ -11,26 +11,26 @@ const menuItems = [
     url: "/",
   },
   {
-    title: "Inventory",
-    url: "/inventory",
+    title: "Orders",
+    url: "/orderhome",
     submenu: [
       {
-        title: "Order",
+        title: "Create",
         url: "order",
+      },
+      {
+        title: "History",
+        url: "pastorders",
       },
     ],
   },
   {
-    title: "Past Orders",
-    url: "/past-orders",
+    title: "Misc",
+    url: "/misc",
     submenu: [
       {
         title: "Customers",
         url: "customers",
-      },
-      {
-        title: "Vendors",
-        url: "vendors",
       },
     ],
   },

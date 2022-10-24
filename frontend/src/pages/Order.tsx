@@ -85,7 +85,7 @@ const Order = (props: Props) => {
                 <div className="flex flex-wrap justify-center">
                     {categories.map((category) => (
                         <div>
-                            <button className="bg-orange-300 m-1 rounded-lg hover:bg-orange-500" onClick={() => categoryClick(category)}>
+                            <button className="m-1 rounded-lg pt-3 pb-3 bg-orange-300 hover:bg-orange-500" onClick={() => categoryClick(category)}>
                                 <div className="w-40">{category}</div>
                             </button>
                         </div>
@@ -100,7 +100,7 @@ const Order = (props: Props) => {
                     {items.map(item => {
                         return item.category === selectedCategory
                                 ?   <div>
-                                        <button className={"flex flex-row w-max m-1 rounded-lg" + (item.stock !== 0 ? " bg-blue-300 hover:bg-blue-500" : " bg-red-300")} onClick={() => productClick(item)}>
+                                        <button className={"flex flex-row w-max m-1 rounded-lg pt-3 pb-3 " + (item.stock !== 0 ? "bg-blue-300 hover:bg-blue-500" : "bg-red-300")} onClick={() => productClick(item)}>
                                             <div className="basis-1/2 m-3 whitespace-nowrap">{item.name}</div>
                                             <div className="basis-1/4 m-3">${item.price}</div>
                                             <div className="basis-1/4 m-3">{item.stock}</div>
