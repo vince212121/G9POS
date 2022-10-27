@@ -48,8 +48,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+class Vendor(models.Model):
+    name = models.CharField(max_length=128)
+    email = models.EmailField(max_length=128)
+    phone_number = models.CharField(max_length=15, default=None, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class Category(models.Model):
+    name = models.CharField(max_length=128)
+    def __str__(self):
+        return self.name
+
 # TODO: might need a category table?
 class Inventory(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    brand = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
     description = models.TextField()
     quantity = models.IntegerField(default=0)
@@ -58,43 +74,45 @@ class Inventory(models.Model):
 
     def __str__(self):
         return self.name
-
+    
 class CustomerProfile(models.Model):
     name = models.CharField(max_length=128)
     email = models.EmailField(max_length=128)
-    phone_number = models.CharField(max_length=15)
+    phone_number = models.CharField(max_length=15, default=None, null=True, blank=True)
 
     def __str__(self):
         return self.name
-
-class PreviousCustomerOrder(models.Model):
-    name = models.CharField(max_length=128, default=None, blank=True)
-    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
-    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
-
-    def __str__(self):
-        return f"Customer {self.id}" if self.name is None else self.name
-
-class PreviousVendorOrder(models.Model):
-    name = models.CharField(max_length=128)
-    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
-
-    def __str__(self):
-        return self.name
-
 
 class CustomerOrder(models.Model):
-    previousCustomer = models.ForeignKey(PreviousCustomerOrder, on_delete=models.CASCADE)
-    item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    # name = models.CharField(max_length=128, default=None, blank=True)
+    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+    customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
+    items = models.ManyToManyField(Inventory)
 
     def __str__(self):
-        return f"Customer {self.previousCustomer.id}" if self.previousCustomer.name is None else self.previousCustomer.name
+        # return f"Customer {self.id}" if self.name is None else self.name
+        return f"Customer {self.id}" if self.customer is None else f"Customer {self.id} - {self.customer.name}"
+
+# class PreviousVendorOrder(models.Model):
+#     name = models.CharField(max_length=128)
+#     date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+
+#     def __str__(self):
+#         return self.name
+
+# class CustomerOrder(models.Model):
+#     previousCustomer = models.ForeignKey(PreviousCustomerOrder, on_delete=models.CASCADE)
+#     # item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+
+#     def __str__(self):
+#         return f"Customer {self.previousCustomer.id}" if self.previousCustomer.customer is None else f"Customer {self.previousCustomer.id} - {self.previousCustomer.customer.name}"
 
 class VendorOrder(models.Model):
-    previousVendor = models.ForeignKey(PreviousVendorOrder, on_delete=models.CASCADE)
-    item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+    items = models.ManyToManyField(Inventory)
     quantity_ordered = models.IntegerField()
-    price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    # price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return self.previousVendor.name
+        return f"vendor {self.id} - {self.vendor.name}"
