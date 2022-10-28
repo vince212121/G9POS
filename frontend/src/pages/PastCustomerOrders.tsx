@@ -2,7 +2,7 @@ import React from 'react';
 
 type Props = {};
 
-const PastOrders = (props: Props) => {
+const PastCustomerOrders = (props: Props) => {
     return (
         <div>
             <div>Past Orders</div>
@@ -10,4 +10,4 @@ const PastOrders = (props: Props) => {
     )
 }
 
-export default PastOrders
+export default PastCustomerOrders

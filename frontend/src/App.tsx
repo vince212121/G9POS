@@ -5,7 +5,8 @@ import Home from "./pages/Home";
 import Layout from "./pages/Layout";
 
 import Order from "./pages/Order";
-import PastOrders from "./pages/PastOrders";
+import PastCustomerOrders from "./pages/PastCustomerOrders";
+import PastVendorOrders from "./pages/PastVendorOrders";
 import Customers from "./pages/Customers";
 
 /*
@@ -25,7 +26,8 @@ const App = () => {
         {/* TODO: Create the other routes for the pages */}
 
         <Route path="/order" element={<Order />} />
-        <Route path="/pastorders" element={<PastOrders />} />
+        <Route path="/past_customer_orders" element={<PastCustomerOrders />} />
+        <Route path="/past_vendor_orders" element={<PastVendorOrders />} />
         <Route path="/customers" element={<Customers />} />
       </Route>
     </Routes>

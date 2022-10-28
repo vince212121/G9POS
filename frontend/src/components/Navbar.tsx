@@ -32,6 +32,10 @@ const menuItems = [
         title: "Customers",
         url: "customers",
       },
+      {
+        title: "Vendors",
+        url: "vendors",
+      },
     ],
   },
 ];

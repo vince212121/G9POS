@@ -1,14 +1,17 @@
-version: "3.2"
+version: "3"
 services:
   frontend:
     container_name: frontend
     tty: true
+    restart: always
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
     volumes:
-      - ./src:/code
-      - node_modules:/code/node_modules
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     entrypoint: /bin/bash -c "npm start"
@@ -16,6 +19,7 @@ services:
   backend:
     container_name: backend
     tty: true
+    restart: always
     build:
       context: ./backend
       dockerfile: Dockerfile
