@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -61,7 +60,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-# TODO: might need a category table?
 class Inventory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
@@ -84,35 +82,19 @@ class CustomerProfile(models.Model):
         return self.name
 
 class CustomerOrder(models.Model):
-    # name = models.CharField(max_length=128, default=None, blank=True)
-    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+    date_purchased = models.DateTimeField(auto_now_add=True, blank=True)
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
     items = models.ManyToManyField(Inventory)
+    total_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
     def __str__(self):
-        # return f"Customer {self.id}" if self.name is None else self.name
         return f"Customer {self.id}" if self.customer is None else f"Customer {self.id} - {self.customer.name}"
-
-# class PreviousVendorOrder(models.Model):
-#     name = models.CharField(max_length=128)
-#     date_purchased = models.DateTimeField(default=datetime.now, blank=True)
-
-#     def __str__(self):
-#         return self.name
-
-# class CustomerOrder(models.Model):
-#     previousCustomer = models.ForeignKey(PreviousCustomerOrder, on_delete=models.CASCADE)
-#     # item = models.ForeignKey(Inventory, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f"Customer {self.previousCustomer.id}" if self.previousCustomer.customer is None else f"Customer {self.previousCustomer.id} - {self.previousCustomer.customer.name}"
-
 class VendorOrder(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    date_purchased = models.DateTimeField(default=datetime.now, blank=True)
+    date_purchased = models.DateTimeField(auto_now_add=True, blank=True)
     items = models.ManyToManyField(Inventory)
     quantity_ordered = models.IntegerField()
-    # price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    total_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"vendor {self.id} - {self.vendor.name}"
