@@ -1,7 +1,9 @@
-import { stringify } from "querystring";
 import React, { useState, useReducer } from "react";
 
 type Props = {};
+
+// TODO: Create an order page for customers and vendors
+// Then link with queries and mutations
 
 const categories = [ "Tops", "Bottoms", "Accessories" ]
 

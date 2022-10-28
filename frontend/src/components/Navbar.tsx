@@ -1,44 +1,9 @@
 import MenuItems from "./MenuItems";
+import { menuItems } from "../assets/menuitems";
 
 type Props = {
   additionalStyles?: string;
 };
-
-// TODO: Add more routes as needed
-const menuItems = [
-  {
-    title: "Home",
-    url: "/",
-  },
-  {
-    title: "Orders",
-    url: "/orderhome",
-    submenu: [
-      {
-        title: "Create",
-        url: "order",
-      },
-      {
-        title: "History",
-        url: "pastorders",
-      },
-    ],
-  },
-  {
-    title: "Misc",
-    url: "/misc",
-    submenu: [
-      {
-        title: "Customers",
-        url: "customers",
-      },
-      {
-        title: "Vendors",
-        url: "vendors",
-      },
-    ],
-  },
-];
 
 const Navbar = ({ additionalStyles }: Props) => {
   return (
