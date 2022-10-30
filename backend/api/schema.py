@@ -1,6 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from api.models import (
     Inventory, 
     VendorOrder, 
@@ -9,6 +9,7 @@ from api.models import (
     Category,
     Vendor,
 )
+from graphql_jwt.utils import jwt_payload, jwt_encode
 from graphene.types.generic import GenericScalar
 
 class CustomerType(DjangoObjectType):
@@ -576,7 +577,7 @@ class CategoryMutation(graphene.Mutation):
 
 # Users
 # https://www.howtographql.com/graphql-python/4-authentication/
-class CreateUser(graphene.Mutation):
+class CreateUserMutation(graphene.Mutation):
     class Arguments:
         email = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -603,8 +604,26 @@ class CreateUser(graphene.Mutation):
             )
             user.set_password(password)
             user.save()
-        return CreateUser(ok=True, status="200", message="User created")
+        return CreateUserMutation(ok=True, status="200", message="User created")
 
+class ClientLoginMutation(graphene.Mutation):
+    class Arguments:
+        email = graphene.String()
+        password = graphene.String()
+
+    ok = graphene.Boolean()
+    status = graphene.String()
+    message = graphene.String()
+    token = graphene.String()
+
+    def mutate(root, info, email, password):
+        user = authenticate(username=email, password=password)
+
+        if user is None:
+            return ClientLoginMutation(ok=False, status="404", message="Enter valid credentials", token=None)
+
+        return ClientLoginMutation(ok=True, status="200", message="Logged in", token=jwt_encode(jwt_payload(user)))
+        
 class Mutations(graphene.ObjectType):
     product_mutation = ProductMutation.Field()
     vendor_mutation = VendorMutation.Field()
@@ -612,6 +631,7 @@ class Mutations(graphene.ObjectType):
     customer_mutation = CustomerMutation.Field()
     customer_order_mutation = CustomerOrderMutation.Field()
     category_mutation = CategoryMutation.Field()
-    create_user = CreateUser.Field()
+    create_user = CreateUserMutation.Field()
+    user_login = ClientLoginMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutations)
