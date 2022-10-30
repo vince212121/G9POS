@@ -1,6 +1,6 @@
 import React from "react";
 
-import { createClient, Provider } from "urql";
+import { createClient, Provider, defaultExchanges } from "urql";
 import Cookies from "js-cookie";
 import { BASEURL } from "./assets/constants";
 
@@ -26,16 +26,19 @@ import Inventory from "./pages/Inventory";
     https://tailwindcss.com/
 */
 
+// TODO: need to figure out what is wrong with the authentication for mutations
+// To make the query and mutations work, the login required will need to be taken off
 const client = createClient({
   url: BASEURL,
-  fetchOptions: () => {
-    // const token = Cookies.get("token");
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzE0NDUyNCwib3JpZ0lhdCI6MTY2NzE0NDIyNH0.NPZ8WmsmvpTg97HuO5LI6v1wPjETiZXrFnSBxQUYQ8w";
-    return {
-      headers: { authorization: token ? `JWT ${token}` : "" },
-    };
-  },
+  exchanges: defaultExchanges,
+  // fetchOptions: () => {
+  //   // const token = Cookies.get("token");
+  //   const token =
+  //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzE0NDUyNCwib3JpZ0lhdCI6MTY2NzE0NDIyNH0.NPZ8WmsmvpTg97HuO5LI6v1wPjETiZXrFnSBxQUYQ8w";
+  //   return {
+  //     headers: { authorization: token ? `JWT ${token}` : "" },
+  //   };
+  // },
 });
 
 const App = () => {

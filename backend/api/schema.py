@@ -32,11 +32,11 @@ class Query(graphene.ObjectType):
     vendor = graphene.List(VendorType)
     category = graphene.List(CategoryType)
 
-    @login_required
+    # @login_required
     def resolve_product(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         items = Inventory.objects.all()
         return [
             {
@@ -60,11 +60,11 @@ class Query(graphene.ObjectType):
             for item in items
         ]
 
-    @login_required
+    # @login_required
     def resolve_customer_order(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         orders: CustomerOrder = CustomerOrder.objects.all()
         ordersCollection = []
         for order in orders:
@@ -100,11 +100,11 @@ class Query(graphene.ObjectType):
             })
         return ordersCollection
 
-    @login_required
+    # @login_required
     def resolve_vendor_order(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         orders: VendorOrder = VendorOrder.objects.all()
         ordersCollection = []
         for order in orders:
@@ -141,25 +141,25 @@ class Query(graphene.ObjectType):
             })
         return ordersCollection
     
-    @login_required
+    # @login_required
     def resolve_customer(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         return CustomerProfile.objects.all()
 
-    @login_required
+    # @login_required
     def resolve_vendor(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         return Vendor.objects.all()
 
-    @login_required
+    # @login_required
     def resolve_category(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         return Category.objects.all()
 
 # Mutations
@@ -180,11 +180,11 @@ class ProductMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    @login_required
+    # @login_required
     def mutate(root, info, action, category, vendor, name, brand, description, quantity, quantity_sold, price):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
         
         try:
@@ -238,11 +238,11 @@ class VendorMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    @login_required
+    # @login_required
     def mutate(root, info, action, name, email, updated_email, phone):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
 
         if action == "add":
@@ -293,11 +293,11 @@ class VendorOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    @login_required
+    # @login_required
     def mutate(root, info, action, vendor_data, order_id, items, quantity_ordered):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
 
         vendor = None
@@ -388,11 +388,11 @@ class CustomerMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    @login_required
+    # @login_required
     def mutate(root, info, action, name, email, updated_email, phone):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
 
         if action == "add":
@@ -444,11 +444,11 @@ class CustomerOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    @login_required
+    # @login_required
     def mutate(root, info, action, customer_data, items, order_id):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
 
         customer = None
@@ -549,11 +549,11 @@ class CategoryMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    @login_required
+    # @login_required
     def mutate(root, info, action, name, updated_name):
-        user = info.context.user
-        if user.is_anonymous:
-            return {"ok": False, "message": "Not Logged in", "status": 401}
+        # user = info.context.user
+        # if user.is_anonymous:
+        #     return {"ok": False, "message": "Not Logged in", "status": 401}
         
         action = action.lower()
 

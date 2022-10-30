@@ -13,7 +13,7 @@ const TEST = gql`
 const PastCustomerOrders = (props: Props) => {
   const [testResult, testMutation] = useMutation(TEST);
   return (
-    <div className="">
+    <div>
       <div>Past Orders</div>
       <button
         className="border p-4"

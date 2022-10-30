@@ -68,7 +68,6 @@ const Inventory = (props: Props) => {
   const { data, fetching, error } = result;
 
   const [productResult, productMutation] = useMutation(PRODUCT_MUTATION);
-  const [testResult, testMutation] = useMutation(TEST);
 
   const [openEditor, setOpenEditor] = useState(false);
   const [openAddModal, setAddModal] = useState(false);
@@ -100,8 +99,6 @@ const Inventory = (props: Props) => {
   if (fetching) return <LoadingData />;
 
   if (error) return <Error />;
-
-  //   console.log(data, productState);
 
   return (
     <div className="lg:mx-4 mt-8 w-screen overflow-x-auto">
@@ -153,7 +150,9 @@ const Inventory = (props: Props) => {
                   placeholder="Quantity"
                   className="p-2 border-b border-gray-700 bg-white w-full"
                   value={product.quantity}
-                  onChange={(e) => setProduct({ quantity: e.target.value })}
+                  onChange={(e) =>
+                    setProduct({ quantity: parseInt(e.target.value) })
+                  }
                   onKeyPress={(event) => {
                     if (!/[0-9]/.test(event.key)) {
                       event.preventDefault();
@@ -169,7 +168,9 @@ const Inventory = (props: Props) => {
                   placeholder="Quantity Sold"
                   className="p-2 border-b border-gray-700 bg-white w-full"
                   value={product.quantitySold}
-                  onChange={(e) => setProduct({ quantitySold: e.target.value })}
+                  onChange={(e) =>
+                    setProduct({ quantitySold: parseInt(e.target.value) })
+                  }
                   onKeyPress={(event) => {
                     if (!/[0-9]/.test(event.key)) {
                       event.preventDefault();
@@ -206,17 +207,12 @@ const Inventory = (props: Props) => {
                 <span>Category</span>
                 <select
                   className="p-2 border-b border-gray-700 bg-white w-full"
-                  //   defaultValue={""}
                   onChange={(e) => {
                     let category = data.category.find(
                       (cat: any) => cat.name === e.target.value
                     );
                     if (category) {
                       setProduct({
-                        // category: {
-                        //   id: category.id,
-                        //   name: category.name,
-                        // },
                         category: category,
                       });
                     } else {
@@ -250,10 +246,6 @@ const Inventory = (props: Props) => {
                     );
                     if (vendor) {
                       setProduct({
-                        // vendor: {
-                        //   id: vendor.id,
-                        //   name: vendor.name,
-                        // },
                         vendor: vendor,
                       });
                     } else {
@@ -283,11 +275,53 @@ const Inventory = (props: Props) => {
           <div className="flex items-center p-6 space-x-2 rounded-b border-t border-gray-200 dark:border-gray-600">
             <button
               type="submit"
-              className="text-white bg-gray-700 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+              className={`text-white bg-gray-700 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+              ${
+                product.name === "" ||
+                product.description === "" ||
+                product.brand === "" ||
+                Object.keys(product.category).length === 0 ||
+                Object.keys(product.vendor).length === 0
+                  ? "cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={
+                product.name === "" ||
+                product.description === "" ||
+                product.brand === "" ||
+                Object.keys(product.category).length === 0 ||
+                Object.keys(product.vendor).length === 0
+              }
               onClick={async () => {
-                // TODO: process data
-                let test = await testMutation({ email: "1234" });
-                console.log(test);
+                let editResult = await productMutation({
+                  action: "update",
+                  category: product.category,
+                  vendor: product.vendor,
+                  name: product.name,
+                  brand: product.brand,
+                  description: product.description,
+                  quantity: product.quantity,
+                  quantitySold: product.quantitySold,
+                  price: product.price,
+                });
+                if (editResult?.data?.productMutation?.ok) {
+                  reexecuteQuery({ requestPolicy: "network-only" });
+                  setProduct(productState);
+                  setInitialProduct(productState);
+                  setMessage({
+                    message: "Updated product",
+                    error: false,
+                    confirmation: true,
+                  });
+                  setShowMessage(true);
+                } else {
+                  setMessage({
+                    message: "Something went wrong",
+                    error: true,
+                    confirmation: false,
+                  });
+                  setShowMessage(true);
+                }
 
                 setMessage({
                   message: "Product saved",
@@ -304,9 +338,7 @@ const Inventory = (props: Props) => {
               type="submit"
               className="text-white bg-red-700 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               onClick={async () => {
-                // TODO: delete product
                 if (window.confirm("do you want to delete?")) {
-                  console.log(initialProduct.vendor);
                   let deleteResult = await productMutation({
                     action: "delete",
                     category: initialProduct.category,
@@ -318,8 +350,7 @@ const Inventory = (props: Props) => {
                     quantitySold: initialProduct.quantitySold,
                     price: initialProduct.price,
                   });
-                  console.log(deleteResult);
-                  if (deleteResult?.data?.ok) {
+                  if (deleteResult?.data?.productMutation?.ok) {
                     reexecuteQuery({ requestPolicy: "network-only" });
                     setProduct(productState);
                     setInitialProduct(productState);
@@ -358,7 +389,248 @@ const Inventory = (props: Props) => {
       )}
       {openAddModal && (
         <Modal title="Add Product" setCloseModal={setAddModal}>
-          <div></div>
+          <div className="p-6 space-y-6 flex flex-col">
+            <form
+              className="flex flex-col space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setProduct(productState);
+              }}
+            >
+              <div className="space-x-10 flex justify-center items-center">
+                <span>Name</span>
+                <input
+                  name="name"
+                  placeholder="Name"
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  value={product.name}
+                  onChange={(e) => setProduct({ name: e.target.value })}
+                />
+              </div>
+              <div className="space-x-10 flex justify-center items-center">
+                <span>Brand</span>
+                <input
+                  name="brand"
+                  placeholder="Brand"
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  value={product.brand}
+                  onChange={(e) => setProduct({ brand: e.target.value })}
+                />
+              </div>
+              <div className="space-x-1 flex justify-center items-center">
+                <span>Description</span>
+                <input
+                  name="description"
+                  placeholder="Description"
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  value={product.description}
+                  onChange={(e) => setProduct({ description: e.target.value })}
+                />
+              </div>
+              <div className="space-x-6 flex justify-center items-center">
+                <span>Quantity</span>
+                <input
+                  type="number"
+                  name="quantity"
+                  placeholder="Quantity"
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  value={product.quantity}
+                  onChange={(e) =>
+                    setProduct({ quantity: parseInt(e.target.value) })
+                  }
+                  onKeyPress={(event) => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+              <div className="space-x-3 md:space-x-0 flex justify-center items-center">
+                <span>Quantity Sold</span>
+                <input
+                  type="number"
+                  name="quantity_sold"
+                  placeholder="Quantity Sold"
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  value={product.quantitySold}
+                  onChange={(e) =>
+                    setProduct({ quantitySold: parseInt(e.target.value) })
+                  }
+                  onKeyPress={(event) => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+              <div className="space-x-12 flex justify-center items-center">
+                <span>Price</span>
+                <input
+                  type="number"
+                  name="price"
+                  placeholder="Price"
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  value={product.price}
+                  step="0.01"
+                  onChange={(e) => {
+                    if (
+                      !isNaN(parseFloat(e.target.value)) ||
+                      /^\d+\.\d{0,2}$/.test(e.target.value)
+                    ) {
+                      setProduct({
+                        price: parseFloat(e.target.value),
+                      });
+                    } else if (e.target.value === "") {
+                      setProduct({
+                        price: 0,
+                      });
+                    }
+                  }}
+                />
+              </div>
+              <div className="space-x-5 flex justify-center items-center">
+                <span>Category</span>
+                <select
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  defaultValue={""}
+                  onChange={(e) => {
+                    let category = data.category.find(
+                      (cat: any) => cat.name === e.target.value
+                    );
+                    if (category) {
+                      setProduct({
+                        category: category,
+                      });
+                    } else {
+                      setMessage({
+                        message: "Category not found",
+                        error: true,
+                        confirmation: false,
+                      });
+                      setShowMessage(true);
+                    }
+                  }}
+                  value={product.category.name}
+                >
+                  <option disabled value="">
+                    select an option
+                  </option>
+                  {data.category.map((cat: any, i: number) => (
+                    <option key={`opt_${i}`} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-x-8 flex justify-center items-center">
+                <span>Vendor</span>
+                <select
+                  className="p-2 border-b border-gray-700 bg-white w-full"
+                  defaultValue={""}
+                  onChange={(e) => {
+                    let vendor = data.vendor.find(
+                      (ven: any) => ven.name === e.target.value
+                    );
+                    if (vendor) {
+                      setProduct({
+                        vendor: vendor,
+                      });
+                    } else {
+                      setMessage({
+                        message: "Vendor not found",
+                        error: true,
+                        confirmation: false,
+                      });
+                      setShowMessage(true);
+                    }
+                  }}
+                  value={product.vendor.name}
+                >
+                  <option disabled value="">
+                    select an option
+                  </option>
+                  {data.vendor.map((ven: any, i: number) => (
+                    <option key={`opt_${i}`} value={ven.name}>
+                      {ven.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </form>
+          </div>
+          {/* Modal footer */}
+          <div className="flex items-center p-6 space-x-2 rounded-b border-t border-gray-200 dark:border-gray-600">
+            <button
+              type="submit"
+              className={`text-white bg-gray-700 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+              ${
+                product.name === "" ||
+                product.description === "" ||
+                product.brand === "" ||
+                Object.keys(product.category).length === 0 ||
+                Object.keys(product.vendor).length === 0
+                  ? "cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={
+                product.name === "" ||
+                product.description === "" ||
+                product.brand === "" ||
+                Object.keys(product.category).length === 0 ||
+                Object.keys(product.vendor).length === 0
+              }
+              onClick={async () => {
+                let addResult = await productMutation({
+                  action: "add",
+                  category: product.category,
+                  vendor: product.vendor,
+                  name: product.name,
+                  brand: product.brand,
+                  description: product.description,
+                  quantity: product.quantity,
+                  quantitySold: product.quantitySold,
+                  price: product.price,
+                });
+                if (addResult?.data?.productMutation?.ok) {
+                  reexecuteQuery({ requestPolicy: "network-only" });
+                  setProduct(productState);
+                  setInitialProduct(productState);
+                  setMessage({
+                    message: "Added product",
+                    error: false,
+                    confirmation: true,
+                  });
+                  setShowMessage(true);
+                } else {
+                  setMessage({
+                    message: "Something went wrong",
+                    error: true,
+                    confirmation: false,
+                  });
+                  setShowMessage(true);
+                }
+
+                setMessage({
+                  message: "Product Added",
+                  error: false,
+                  confirmation: true,
+                });
+                setShowMessage(true);
+                setAddModal(false);
+              }}
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              className="text-gray-500 bg-gray-100 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-500 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+              onClick={() => {
+                setOpenEditor(false);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </Modal>
       )}
       <table className="w-full text-center">
@@ -381,29 +653,31 @@ const Inventory = (props: Props) => {
               className="border-b border-gray-700 bg-gray-100"
               key={index}
               onClick={() => {
-                setProduct({
-                  id: item.id,
-                  name: item.name,
-                  category: item.category,
-                  vendor: item.vendor,
-                  brand: item.brand,
-                  description: item.description,
-                  quantity: item.quantity,
-                  quantitySold: item.quantity_sold,
-                  price: parseFloat(item.price),
-                });
-                setInitialProduct({
-                  id: item.id,
-                  name: item.name,
-                  category: item.category,
-                  vendor: item.vendor,
-                  brand: item.brand,
-                  description: item.description,
-                  quantity: item.quantity,
-                  quantitySold: item.quantity_sold,
-                  price: parseFloat(item.price),
-                });
-                setOpenEditor(true);
+                if (!openAddModal) {
+                  setProduct({
+                    id: item.id,
+                    name: item.name,
+                    category: item.category,
+                    vendor: item.vendor,
+                    brand: item.brand,
+                    description: item.description,
+                    quantity: item.quantity,
+                    quantitySold: item.quantity_sold,
+                    price: parseFloat(item.price),
+                  });
+                  setInitialProduct({
+                    id: item.id,
+                    name: item.name,
+                    category: item.category,
+                    vendor: item.vendor,
+                    brand: item.brand,
+                    description: item.description,
+                    quantity: item.quantity,
+                    quantitySold: item.quantity_sold,
+                    price: parseFloat(item.price),
+                  });
+                  setOpenEditor(true);
+                }
               }}
             >
               <td className="py-4 px-6 whitespace-nowrap">{item.id}</td>
@@ -430,8 +704,9 @@ const Inventory = (props: Props) => {
       <button
         className="fixed right-5 bottom-5 z-50 bg-white rounded-3xl"
         onClick={() => {
-          if (openEditor) {
-            setShowMessage(true);
+          if (!openEditor) {
+            setProduct(productState);
+            setAddModal(true);
           }
         }}
       >
