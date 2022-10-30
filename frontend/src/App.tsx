@@ -1,5 +1,9 @@
 import React from "react";
 
+import { createClient, Provider } from "urql";
+import Cookies from "js-cookie";
+import { BASEURL } from "./assets/constants";
+
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "./pages/Layout";
@@ -11,6 +15,7 @@ import Customers from "./pages/Customers";
 import Vendors from "./pages/Vendors";
 import CreateCustomerOrder from "./pages/CreateCustomerOrder";
 import CreateVendorOrder from "./pages/CreateVendorOrder";
+import Inventory from "./pages/Inventory";
 
 /*
   SVG icons:
@@ -21,23 +26,38 @@ import CreateVendorOrder from "./pages/CreateVendorOrder";
     https://tailwindcss.com/
 */
 
+const client = createClient({
+  url: BASEURL,
+  fetchOptions: () => {
+    // const token = Cookies.get("token");
+    const token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzE0MzA3Nywib3JpZ0lhdCI6MTY2NzE0Mjc3N30.SwjH7ilwURcukzEnp_na4quDNFTrKCy5d6cPj3t0SG4"
+    return {
+      headers: { authorization: token ? `JWT ${token}` : "" },
+    };
+  },
+});
+
 const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        {/* TODO: Create the other routes for the pages */}
-
-        <Route path="/order" element={<Order />} />
-        <Route path="/customer_order" element={<CreateCustomerOrder />} />
-        <Route path="/past_customer_orders" element={<PastCustomerOrders />} />
-        <Route path="/vendor_order" element={<CreateVendorOrder />} />
-        <Route path="/past_vendor_orders" element={<PastVendorOrders />} />
-
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/vendors" element={<Vendors />} />
-      </Route>
-    </Routes>
+    <Provider value={client}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/customer_order" element={<CreateCustomerOrder />} />
+          <Route
+            path="/past_customer_orders"
+            element={<PastCustomerOrders />}
+          />
+          <Route path="/vendor_order" element={<CreateVendorOrder />} />
+          <Route path="/past_vendor_orders" element={<PastVendorOrders />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/vendors" element={<Vendors />} />
+        </Route>
+      </Routes>
+    </Provider>
   );
 };
 

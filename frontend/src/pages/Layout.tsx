@@ -4,10 +4,10 @@ import Header from "../components/Header";
 
 const Layout = () => {
   return (
-    <div className="flex flex-col h-screen justify-between">
+    <div className="flex flex-col justify-between">
       <Header />
       {/* TODO: Add styling to the container */}
-      <div className="flex items-center justify-center">
+      <div className="flex h-screen overflow-x-auto">
         <Outlet />
       </div>
       <Footer />

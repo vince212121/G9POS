@@ -10,7 +10,7 @@ const Navbar = ({ additionalStyles }: Props) => {
     <nav>
       <ul className={`${additionalStyles}`}>
         {menuItems.map((menu, index) => {
-          return <MenuItems item={menu} index={index} />;
+          return <MenuItems item={menu} index={index} key={index}/>;
         })}
       </ul>
     </nav>

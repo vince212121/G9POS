@@ -11,6 +11,7 @@ from api.models import (
 )
 from graphql_jwt.utils import jwt_payload, jwt_encode
 from graphene.types.generic import GenericScalar
+from graphql_jwt.decorators import login_required
 
 class CustomerType(DjangoObjectType):
     class Meta:
@@ -27,10 +28,11 @@ class Query(graphene.ObjectType):
     product = GenericScalar()
     customer_order = GenericScalar()
     vendor_order = GenericScalar()
-    customer = graphene.List(CustomerType, name=graphene.String(required=True))
-    vendor = graphene.List(VendorType, name=graphene.String(required=True))
-    category = graphene.List(CategoryType, name=graphene.String(required=True))
+    customer = graphene.List(CustomerType)
+    vendor = graphene.List(VendorType)
+    category = graphene.List(CategoryType)
 
+    @login_required
     def resolve_product(self, info):
         user = info.context.user
         if user.is_anonymous:
@@ -40,10 +42,11 @@ class Query(graphene.ObjectType):
             {
                 "id": item.id,
                 "brand": item.brand,
+                "name": item.name,
                 "vendor": {
                     "name": item.vendor.name,
                     "email": item.vendor.email,
-                    "phone": item.vendor.phone_number,
+                    "phone_number": item.vendor.phone_number,
                 },
                 "category": {
                     "id": item.category.id,
@@ -57,6 +60,7 @@ class Query(graphene.ObjectType):
             for item in items
         ]
 
+    @login_required
     def resolve_customer_order(self, info):
         user = info.context.user
         if user.is_anonymous:
@@ -74,7 +78,7 @@ class Query(graphene.ObjectType):
                         "vendor": {
                             "name": item.vendor.name,
                             "email": item.vendor.email,
-                            "phone": item.vendor.phone_number,
+                            "phone_number": item.vendor.phone_number,
                         },
                         "category": {
                             "id": item.category.id,
@@ -91,11 +95,12 @@ class Query(graphene.ObjectType):
                     "id": order.customer.id,
                     "name": order.customer.name,
                     "email": order.customer.email,
-                    "phone": order.customer.phone_number 
+                    "phone_number": order.customer.phone_number 
                 } if order.customer is not None else None,
             })
         return ordersCollection
 
+    @login_required
     def resolve_vendor_order(self, info):
         user = info.context.user
         if user.is_anonymous:
@@ -109,7 +114,7 @@ class Query(graphene.ObjectType):
                     "id": order.vendor.id,
                     "name": order.vendor.name,
                     "email": order.vendor.email,
-                    "phone": order.vendor.phone_number 
+                    "phone_number": order.vendor.phone_number 
                 },
                 "quantity_ordered": order.quantity_ordered,
                 "date_purchased": f"{order.date_purchased.year}/{order.date_purchased.month}/{order.date_purchased.day}",
@@ -120,7 +125,7 @@ class Query(graphene.ObjectType):
                         "vendor": {
                             "name": item.vendor.name,
                             "email": item.vendor.email,
-                            "phone": item.vendor.phone_number,
+                            "phone_number": item.vendor.phone_number,
                         },
                         "category": {
                             "id": item.category.id,
@@ -136,23 +141,26 @@ class Query(graphene.ObjectType):
             })
         return ordersCollection
     
-    def resolve_customer(self, info, name):
+    @login_required
+    def resolve_customer(self, info):
         user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        return CustomerProfile.objects.filter(name=name)
+        return CustomerProfile.objects.all()
 
-    def resolve_vendor(self, info, name):
+    @login_required
+    def resolve_vendor(self, info):
         user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        return Vendor.objects.filter(name=name)
+        return Vendor.objects.all()
 
-    def resolve_category(self, info, name):
+    @login_required
+    def resolve_category(self, info):
         user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        return Category.objects.filter(name=name)
+        return Category.objects.all()
 
 # Mutations
 # Products/Inventory
@@ -172,22 +180,18 @@ class ProductMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
+    @login_required
     def mutate(root, info, action, category, vendor, name, brand, description, quantity, quantity_sold, price):
         user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        
         action = action.lower()
         
-        if action != "add" or action != "update":
-            try:
-                cat = Category.objects.get(name=category.get("name"))
-                ven = Vendor.objects.get(name=vendor.get("name"))
-                ven.email = vendor.get("email")
-                ven.phone_number = vendor.get("phone_number")
-                ven.save(update_fields=["email","phone_number"])
-            except:
-                return ProductMutation(ok=False, status=200, message="Category or vendor doesn't exist")
+        try:
+            cat = Category.objects.get(name=category.get("name"))
+            ven = Vendor.objects.get(name=vendor.get("name"), email=vendor.get("email"))
+        except:
+            return ProductMutation(ok=False, status=200, message="Category or vendor doesn't exist")
         
         if action == "add":
             Inventory.objects.create(
@@ -213,7 +217,7 @@ class ProductMutation(graphene.Mutation):
             return ProductMutation(ok=True, status=200, message="Product updated")
         elif action == "delete":
             try:
-                prod: Inventory = Inventory.objects.get(name=name, vendor=ven)
+                prod: Inventory = Inventory.objects.get(name=name, vendor=ven, category=cat)
                 prod.delete()
                 return ProductMutation(ok=True, status=200, message="Product deleted")
             except:
@@ -234,11 +238,11 @@ class VendorMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
+    @login_required
     def mutate(root, info, action, name, email, updated_email, phone):
-        user = info.context.userv
+        user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        
         action = action.lower()
 
         if action == "add":
@@ -289,11 +293,11 @@ class VendorOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
+    @login_required
     def mutate(root, info, action, vendor_data, order_id, items, quantity_ordered):
         user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        
         action = action.lower()
 
         vendor = None
@@ -384,11 +388,11 @@ class CustomerMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
+    @login_required
     def mutate(root, info, action, name, email, updated_email, phone):
         user = info.context.user
         if user.is_anonymous:
             return {"ok": False, "message": "Not Logged in", "status": 401}
-        
         action = action.lower()
 
         if action == "add":
@@ -440,6 +444,7 @@ class CustomerOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
+    @login_required
     def mutate(root, info, action, customer_data, items, order_id):
         user = info.context.user
         if user.is_anonymous:
@@ -544,6 +549,7 @@ class CategoryMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
+    @login_required
     def mutate(root, info, action, name, updated_name):
         user = info.context.user
         if user.is_anonymous:
@@ -624,6 +630,18 @@ class ClientLoginMutation(graphene.Mutation):
 
         return ClientLoginMutation(ok=True, status="200", message="Logged in", token=jwt_encode(jwt_payload(user)))
         
+class TestMutation(graphene.Mutation):
+    class Arguments:
+        email = graphene.String(required=True)
+
+    ok = graphene.Boolean()
+    status = graphene.String()
+    message = graphene.String()
+
+    def mutate(root, info, email):
+        print("test",email)
+        return TestMutation(ok=True, status="200", message="User created")
+    
 class Mutations(graphene.ObjectType):
     product_mutation = ProductMutation.Field()
     vendor_mutation = VendorMutation.Field()
@@ -633,5 +651,6 @@ class Mutations(graphene.ObjectType):
     category_mutation = CategoryMutation.Field()
     create_user = CreateUserMutation.Field()
     user_login = ClientLoginMutation.Field()
+    test_mutation = TestMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutations)

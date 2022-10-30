@@ -35,6 +35,10 @@ export const menuItems = [
       ]
     },
     {
+      title: "Inventory",
+      url: "inventory"
+    },
+    {
       title: "Misc",
       submenu: [
         {
