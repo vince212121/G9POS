@@ -632,7 +632,7 @@ class ClientLoginMutation(graphene.Mutation):
         
 class TestMutation(graphene.Mutation):
     class Arguments:
-        email = graphene.String(required=True)
+        email = graphene.String()
 
     ok = graphene.Boolean()
     status = graphene.String()

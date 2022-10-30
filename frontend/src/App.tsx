@@ -31,7 +31,7 @@ const client = createClient({
   fetchOptions: () => {
     // const token = Cookies.get("token");
     const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzE0MzA3Nywib3JpZ0lhdCI6MTY2NzE0Mjc3N30.SwjH7ilwURcukzEnp_na4quDNFTrKCy5d6cPj3t0SG4"
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzE0NDUyNCwib3JpZ0lhdCI6MTY2NzE0NDIyNH0.NPZ8WmsmvpTg97HuO5LI6v1wPjETiZXrFnSBxQUYQ8w";
     return {
       headers: { authorization: token ? `JWT ${token}` : "" },
     };

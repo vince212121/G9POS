@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer } from "react";
 import { gql, useMutation, useQuery } from "urql";
 import Error from "../components/Error";
 import LoadingData from "../components/LoadingData";

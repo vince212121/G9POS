@@ -8,7 +8,7 @@ const Home = (props: Props) => {
   const [isLoggedIn, logIn] = useState(false);
 
   return (
-    <div>
+    <div className="w-screen">
       <div className="flex justify-center">
         <button className={"content-center rounded-md p-3 mt-5 " + (isLoggedIn ? "bg-green-300" : "bg-red-300")} onClick={() => logIn(!isLoggedIn)}>
           Temp login button

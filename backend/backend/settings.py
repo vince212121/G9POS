@@ -27,7 +27,10 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'api.User'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000"
+]
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
