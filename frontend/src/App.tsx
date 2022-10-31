@@ -16,6 +16,8 @@ import Vendors from "./pages/Vendors";
 import CreateCustomerOrder from "./pages/CreateCustomerOrder";
 import CreateVendorOrder from "./pages/CreateVendorOrder";
 import Inventory from "./pages/Inventory";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 
 /*
   SVG icons:
@@ -53,6 +55,9 @@ const App = () => {
             path="/past_customer_orders"
             element={<PastCustomerOrders />}
           />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<SignUp />} />
+
           <Route path="/vendor_order" element={<CreateVendorOrder />} />
           <Route path="/past_vendor_orders" element={<PastVendorOrders />} />
           <Route path="/inventory" element={<Inventory />} />
