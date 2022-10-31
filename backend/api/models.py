@@ -32,6 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_owner = models.BooleanField(default=False, help_text='Used for owner privilege')
     is_employee = models.BooleanField(default=False, help_text='Used for employee privilege')
     date_joined = models.DateTimeField(verbose_name="date joined", auto_now_add=True)
+    store_name = models.CharField(max_length=64, help_text='Users store', default="Store Name")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -43,7 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def __str__(self):
-        return self.email
+        return f"{self.store_name} - {self.email}"
 
     objects = UserManager()
 
@@ -69,6 +70,7 @@ class Inventory(models.Model):
     quantity = models.IntegerField(default=0)
     quantity_sold = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=6, decimal_places=2)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

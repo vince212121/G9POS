@@ -4,6 +4,7 @@ import Error from "../components/Error";
 import LoadingData from "../components/LoadingData";
 import Modal from "../components/Modal";
 import Message from "../components/Message";
+import Cookies from "js-cookie";
 
 const GET_INVENTORY_DATA = gql`
   query {
@@ -32,6 +33,7 @@ const PRODUCT_MUTATION = gql`
     $quantity: Int!
     $quantitySold: Int!
     $price: Float!
+    $userToken: String!
   ) {
     productMutation(
       action: $action
@@ -43,6 +45,7 @@ const PRODUCT_MUTATION = gql`
       quantity: $quantity
       quantitySold: $quantitySold
       price: $price
+      userToken: $userToken
     ) {
       ok
       status
@@ -51,17 +54,11 @@ const PRODUCT_MUTATION = gql`
   }
 `;
 
-const TEST = gql`
-  mutation TestMutation($email: String!) {
-    testMutation(email: $email) {
-      ok
-    }
-  }
-`;
-
 type Props = {};
 
 const Inventory = (props: Props) => {
+  const userToken = Cookies.get("token");
+
   const [result, reexecuteQuery] = useQuery({
     query: GET_INVENTORY_DATA,
   });
@@ -92,9 +89,14 @@ const Inventory = (props: Props) => {
     quantity: 0,
     quantitySold: 0,
     price: 0.0,
+    userToken: userToken,
   };
   const [initialProduct, setInitialProduct] = useReducer(reducer, productState);
   const [product, setProduct] = useReducer(reducer, productState);
+
+  if (!userToken) {
+    return <Error message="401 - Unauthorized access to inventory" />;
+  }
 
   if (fetching) return <LoadingData />;
 
@@ -303,6 +305,7 @@ const Inventory = (props: Props) => {
                   quantity: product.quantity,
                   quantitySold: product.quantitySold,
                   price: product.price,
+                  userToken: product.userToken,
                 });
                 if (editResult?.data?.productMutation?.ok) {
                   reexecuteQuery({ requestPolicy: "network-only" });
@@ -349,6 +352,7 @@ const Inventory = (props: Props) => {
                     quantity: initialProduct.quantity,
                     quantitySold: initialProduct.quantitySold,
                     price: initialProduct.price,
+                    userToken: initialProduct.userToken,
                   });
                   if (deleteResult?.data?.productMutation?.ok) {
                     reexecuteQuery({ requestPolicy: "network-only" });
@@ -590,6 +594,7 @@ const Inventory = (props: Props) => {
                   quantity: product.quantity,
                   quantitySold: product.quantitySold,
                   price: product.price,
+                  userToken: product.userToken,
                 });
                 if (addResult?.data?.productMutation?.ok) {
                   reexecuteQuery({ requestPolicy: "network-only" });

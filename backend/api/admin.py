@@ -23,6 +23,7 @@ class staffAdmin(UserAdmin):
                     'groups',
                     'user_permissions',
                     'password',
+                    'store_name',
                 )
             },
         ),

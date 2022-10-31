@@ -1,8 +1,10 @@
 import React from "react";
 
-type Props = {};
+type Props = {
+  message?: string;
+};
 
-const Error = (props: Props) => {
+const Error = ({ message }: Props) => {
   return (
     <div className="flex flex-col justify-center items-center w-screen">
       <svg
@@ -19,7 +21,7 @@ const Error = (props: Props) => {
           d="M9.172 16.172a4 4 0 0 1 5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
         />
       </svg>
-      <span className="text-lg">An error occured</span>
+      <span className="text-lg">{message ? message : "An error occured"}</span>
     </div>
   );
 };

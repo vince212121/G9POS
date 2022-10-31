@@ -8,8 +8,9 @@ from api.models import (
     CustomerProfile,
     Category,
     Vendor,
+    User,
 )
-from graphql_jwt.utils import jwt_payload, jwt_encode
+from graphql_jwt.utils import jwt_payload, jwt_encode, jwt_decode
 from graphene.types.generic import GenericScalar
 from graphql_jwt.decorators import login_required
 
@@ -175,18 +176,20 @@ class ProductMutation(graphene.Mutation):
         quantity = graphene.Int(required=True)
         quantity_sold = graphene.Int(required=True)
         price = graphene.Float(required=True)
+        user_token = graphene.String(required=True)
     
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
     # @login_required
-    def mutate(root, info, action, category, vendor, name, brand, description, quantity, quantity_sold, price):
+    def mutate(root, info, action, category, vendor, name, brand, description, quantity, quantity_sold, price, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
-        
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
         try:
             cat = Category.objects.get(name=category.get("name"))
             ven = Vendor.objects.get(name=vendor.get("name"), email=vendor.get("email"))
@@ -202,11 +205,12 @@ class ProductMutation(graphene.Mutation):
                 description=description, 
                 quantity=quantity, 
                 quantity_sold=quantity_sold, 
-                price=price
+                price=price,
+                user=user
             )
             return ProductMutation(ok=True, status=200, message="Product added")
         elif action == "update":
-            prod: Inventory = Inventory.objects.get(name=name, vendor=ven)
+            prod: Inventory = Inventory.objects.get(name=name, vendor=ven, user=user)
             prod.category = cat
             prod.brand = brand
             prod.description = description
@@ -217,7 +221,7 @@ class ProductMutation(graphene.Mutation):
             return ProductMutation(ok=True, status=200, message="Product updated")
         elif action == "delete":
             try:
-                prod: Inventory = Inventory.objects.get(name=name, vendor=ven, category=cat)
+                prod: Inventory = Inventory.objects.get(name=name, vendor=ven, category=cat, user=user)
                 prod.delete()
                 return ProductMutation(ok=True, status=200, message="Product deleted")
             except:
@@ -287,6 +291,7 @@ class VendorOrderMutation(graphene.Mutation):
         vendor_data = GenericScalar(default_value=None)
         items = GenericScalar(required=True)
         quantity_ordered = graphene.Int(required=True)
+        user_token = graphene.String(required=True)
 
     
     ok = graphene.Boolean()
@@ -294,12 +299,14 @@ class VendorOrderMutation(graphene.Mutation):
     message = graphene.String()
 
     # @login_required
-    def mutate(root, info, action, vendor_data, order_id, items, quantity_ordered):
+    def mutate(root, info, action, vendor_data, order_id, items, quantity_ordered, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
 
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
         vendor = None
         if action == "add":
             if vendor_data is not None:
@@ -320,7 +327,8 @@ class VendorOrderMutation(graphene.Mutation):
                     category=category,
                     vendor=vendor,
                     name=item.get("name"),
-                    brand=item.get("brand")
+                    brand=item.get("brand"),
+                    user=user
                 )
                 inventory.quantity += quantity_ordered
                 inventory.save(update_fields=["quantity"])
@@ -349,6 +357,7 @@ class VendorOrderMutation(graphene.Mutation):
                         vendor=vendor,
                         name=item.get("name"),
                         brand=item.get("brand"),
+                        user=user
                     )
                     # updating with new data
                     inventory.quantity = inventory.quantity - vendorOrder.quantity_ordered + quantity_ordered
@@ -439,18 +448,20 @@ class CustomerOrderMutation(graphene.Mutation):
         order_id = graphene.Int(default_value=None)
         customer_data = GenericScalar(default_value=None)
         items = GenericScalar(required=True)
+        user_token = graphene.String(required=True)
 
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
     # @login_required
-    def mutate(root, info, action, customer_data, items, order_id):
+    def mutate(root, info, action, customer_data, items, order_id, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
-
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
         customer = None
         if action == "add":
             if customer_data is not None:
@@ -476,6 +487,7 @@ class CustomerOrderMutation(graphene.Mutation):
                     vendor=vendor,
                     name=item.get("name"), 
                     brand=item.get("brand"),
+                    user=user
                 )
                 # updating quantity and sold
                 inventory.quantity -= 1 if inventory.quantity > 0 else 0
@@ -510,6 +522,7 @@ class CustomerOrderMutation(graphene.Mutation):
                         vendor=vendor,
                         name=item.get("name"), 
                         brand=item.get("brand"),
+                        user=user,
                     )
 
                     inventory.quantity -= 1 if inventory.quantity > 0 else 0
@@ -632,14 +645,18 @@ class ClientLoginMutation(graphene.Mutation):
         
 class TestMutation(graphene.Mutation):
     class Arguments:
-        email = graphene.String()
+        user_token = graphene.String()
 
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
-    def mutate(root, info, email):
-        print("test",email)
+    def mutate(root, info, user_token):
+        print(user_token)
+        email: get_user_model = jwt_decode(user_token).get("email")
+        test: User = User.objects.filter(email=email).first()
+        print(test)
+
         return TestMutation(ok=True, status="200", message="User created")
     
 class Mutations(graphene.ObjectType):
