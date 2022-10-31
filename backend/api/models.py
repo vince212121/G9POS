@@ -52,12 +52,15 @@ class Vendor(models.Model):
     name = models.CharField(max_length=128)
     email = models.EmailField(max_length=128)
     phone_number = models.CharField(max_length=15, default=None, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
 class Category(models.Model):
     name = models.CharField(max_length=128)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
     def __str__(self):
         return self.name
 
@@ -79,7 +82,7 @@ class CustomerProfile(models.Model):
     name = models.CharField(max_length=128)
     email = models.EmailField(max_length=128)
     phone_number = models.CharField(max_length=15, default=None, null=True, blank=True)
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return self.name
 
@@ -88,6 +91,7 @@ class CustomerOrder(models.Model):
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
     items = models.ManyToManyField(Inventory)
     total_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Customer {self.id}" if self.customer is None else f"Customer {self.id} - {self.customer.name}"
@@ -97,6 +101,7 @@ class VendorOrder(models.Model):
     items = models.ManyToManyField(Inventory)
     quantity_ordered = models.IntegerField()
     total_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"vendor {self.id} - {self.vendor.name}"

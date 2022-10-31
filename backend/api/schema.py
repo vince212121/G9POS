@@ -26,19 +26,21 @@ class CategoryType(DjangoObjectType):
     class Meta:
         model = Category
 class Query(graphene.ObjectType):
-    product = GenericScalar()
-    customer_order = GenericScalar()
-    vendor_order = GenericScalar()
-    customer = graphene.List(CustomerType)
-    vendor = graphene.List(VendorType)
-    category = graphene.List(CategoryType)
+    product = GenericScalar(user_token=graphene.String())
+    customer_order = GenericScalar(user_token=graphene.String())
+    vendor_order = GenericScalar(user_token=graphene.String())
+    customer = graphene.List(CustomerType, user_token=graphene.String())
+    vendor = graphene.List(VendorType, user_token=graphene.String())
+    category = graphene.List(CategoryType, user_token=graphene.String())
 
     # @login_required
-    def resolve_product(self, info):
+    def resolve_product(self, info, user_token):
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        items = Inventory.objects.all()
+        items = Inventory.objects.filter(user=user)
         return [
             {
                 "id": item.id,
@@ -62,11 +64,13 @@ class Query(graphene.ObjectType):
         ]
 
     # @login_required
-    def resolve_customer_order(self, info):
+    def resolve_customer_order(self, info, user_token):
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        orders: CustomerOrder = CustomerOrder.objects.all()
+        orders: CustomerOrder = CustomerOrder.objects.filter(user=user)
         ordersCollection = []
         for order in orders:
             ordersCollection.append({
@@ -102,11 +106,13 @@ class Query(graphene.ObjectType):
         return ordersCollection
 
     # @login_required
-    def resolve_vendor_order(self, info):
+    def resolve_vendor_order(self, info, user_token):
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        orders: VendorOrder = VendorOrder.objects.all()
+        orders: VendorOrder = VendorOrder.objects.filter(user=user)
         ordersCollection = []
         for order in orders:
             ordersCollection.append({
@@ -143,25 +149,31 @@ class Query(graphene.ObjectType):
         return ordersCollection
     
     # @login_required
-    def resolve_customer(self, info):
+    def resolve_customer(self, info, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        return CustomerProfile.objects.all()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
+        return CustomerProfile.objects.filter(user=user)
 
     # @login_required
-    def resolve_vendor(self, info):
+    def resolve_vendor(self, info, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        return Vendor.objects.all()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
+        return Vendor.objects.filter(user=user)
 
     # @login_required
-    def resolve_category(self, info):
+    def resolve_category(self, info, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        return Category.objects.all()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
+        return Category.objects.filter(user=user)
 
 # Mutations
 # Products/Inventory
@@ -237,20 +249,23 @@ class VendorMutation(graphene.Mutation):
         email = graphene.String(required=True)
         updated_email = graphene.String(default_value=None)
         phone = graphene.String(default_value=None)
+        user_token = graphene.String(required=True)
     
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
     # @login_required
-    def mutate(root, info, action, name, email, updated_email, phone):
+    def mutate(root, info, action, name, email, updated_email, phone, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
 
         if action == "add":
-            vendor, created = Vendor.objects.get_or_create(name=name, email=email)
+            vendor, created = Vendor.objects.get_or_create(name=name, email=email, user=user)
             vendor.phone_number = phone
             vendor.save(update_fields=["phone_number"])
             if created:
@@ -262,6 +277,7 @@ class VendorMutation(graphene.Mutation):
                 vendor = Vendor.objects.get(
                     name=name,
                     email=email,
+                    user=user,
                 )
                 vendor.email = updated_email if updated_email is not None else email
                 vendor.phone_number = phone
@@ -274,6 +290,7 @@ class VendorMutation(graphene.Mutation):
                 vendor = Vendor.objects.get(
                     name=name,
                     email=email,
+                    user=user,
                 )
                 vendor.delete()
                 return VendorMutation(ok=True, status=200, message="Vendor deleted")
@@ -304,6 +321,8 @@ class VendorOrderMutation(graphene.Mutation):
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
 
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
@@ -392,22 +411,26 @@ class CustomerMutation(graphene.Mutation):
         email = graphene.String()
         updated_email = graphene.String(default_value=None)
         phone = graphene.String(default_value=None)
+        user_token = graphene.String(required=True)
     
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
     # @login_required
-    def mutate(root, info, action, name, email, updated_email, phone):
+    def mutate(root, info, action, name, email, updated_email, phone, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         action = action.lower()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
 
         if action == "add":
             customer, created = CustomerProfile.objects.get_or_create(
                 name=name,
                 email=email,
+                user=user,
             )
             customer.phone_number = phone
             customer.save(update_fields=["phone_number"])
@@ -420,6 +443,7 @@ class CustomerMutation(graphene.Mutation):
                 customer = CustomerProfile.objects.get(
                     name=name,
                     email=email,
+                    user=user,
                 )
                 customer.email = updated_email if updated_email is not None else email
                 customer.phone_number = phone
@@ -432,6 +456,7 @@ class CustomerMutation(graphene.Mutation):
                 customer = CustomerProfile.objects.get(
                     name=name,
                     email=email,
+                    user=user,
                 )
                 customer.delete()
                 return CustomerMutation(ok=True, status=200, message="Customer deleted")
@@ -503,7 +528,7 @@ class CustomerOrderMutation(graphene.Mutation):
         elif action == "update":
             try:
                 if order_id is not None:
-                    customerOrder = CustomerOrder.objects.get(id=order_id)
+                    customerOrder = CustomerOrder.objects.get(id=order_id, user=user)
                 else:
                     return CustomerOrderMutation(ok=False, status=400, message="Customer Order doesn't exist")
                 
@@ -540,7 +565,7 @@ class CustomerOrderMutation(graphene.Mutation):
         elif action == "delete":
             try:
                 if order_id is not None:
-                    customerOrder = CustomerOrder.objects.get(id=order_id)
+                    customerOrder = CustomerOrder.objects.get(id=order_id, user=user)
                     customerOrder.delete()
                 else:
                     return CustomerOrderMutation(ok=False, status=400, message="Customer Order doesn't exist")
@@ -557,28 +582,31 @@ class CategoryMutation(graphene.Mutation):
         action = graphene.String(required=True)
         name = graphene.String(required=True)
         updated_name = graphene.String(default_value=None)
-    
+        user_token = graphene.String(required=True)
+
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
     # @login_required
-    def mutate(root, info, action, name, updated_name):
+    def mutate(root, info, action, name, updated_name, user_token):
         # user = info.context.user
         # if user.is_anonymous:
         #     return {"ok": False, "message": "Not Logged in", "status": 401}
         
         action = action.lower()
+        email: get_user_model = jwt_decode(user_token).get("email")
+        user: User = User.objects.filter(email=email).first()
 
         if action == "add":
-            category, created = Category.objects.get_or_create(name=name)
+            category, created = Category.objects.get_or_create(name=name, user=user)
             if created:
                 return CategoryMutation(ok=True, status=200, message="Category added")
             else:
                 return CategoryMutation(ok=False, status=400, message="Category already exists")
         elif action == "update":
             try:
-                category = Category.objects.get(name=name)
+                category = Category.objects.get(name=name, user=user)
                 category.name = updated_name if updated_name is not None else name
                 category.save(update_fields=["name"])
                 return CategoryMutation(ok=True, status=200, message="Category updated")
@@ -586,7 +614,7 @@ class CategoryMutation(graphene.Mutation):
                 return CategoryMutation(ok=False, status=400, message="Category doesn't exists")
         elif action == "delete":
             try:
-                category = Category.objects.get(name=name)
+                category = Category.objects.get(name=name, user=user)
                 category.delete()
                 return CategoryMutation(ok=True, status=200, message="Category deleted")
             except:

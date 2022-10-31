@@ -7,13 +7,13 @@ import Message from "../components/Message";
 import Cookies from "js-cookie";
 
 const GET_INVENTORY_DATA = gql`
-  query {
-    product
-    category {
+  query ($userToken: String!) {
+    product(userToken: $userToken)
+    category(userToken: $userToken) {
       id
       name
     }
-    vendor {
+    vendor(userToken: $userToken) {
       id
       name
       email
@@ -57,10 +57,13 @@ const PRODUCT_MUTATION = gql`
 type Props = {};
 
 const Inventory = (props: Props) => {
-  const userToken = Cookies.get("token");
+  // const userToken = Cookies.get("token");
+  const userToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzI0OTAzMSwib3JpZ0lhdCI6MTY2NzI0ODczMX0.tKE20f55n6zmcJ94X9hUYMi8P1HCeLWPTVYksARTTsY";
 
   const [result, reexecuteQuery] = useQuery({
     query: GET_INVENTORY_DATA,
+    variables: { userToken },
   });
   const { data, fetching, error } = result;
 
