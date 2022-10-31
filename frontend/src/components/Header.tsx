@@ -11,7 +11,7 @@ const Header = (props: Props) => {
     // <header className="flex items-center justify-center py-5 border-b">
     <>
       {/* Regular */}
-      <header className="p-4 bg-white sm:p-6 dark:bg-black hidden md:inline">
+      <header className="p-4 sm:p-6 bg-black hidden md:inline">
         <div className="flex justify-center py-2 md:py-0">
           {/* <div className="md:flex justify-between md:justify-center"> */}
           <Link to="/" className="text-white">
@@ -22,12 +22,12 @@ const Header = (props: Props) => {
       </header>
 
       {/* Mobile */}
-      <header className="p-4 bg-white sm:p-6 dark:bg-black md:hidden">
+      <header className="p-4 sm:p-6 bg-black md:hidden">
         <div className="flex justify-between py-2 md:py-0">
           {/* <div className="md:flex justify-between md:justify-center"> */}
           <Link
             to="/"
-            className="flex self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
+            className="flex self-center text-2xl font-semibold whitespace-nowrap text-white"
           >
             <img src="/images/logo.png" className="mr-3 h-8" alt="Logo" />
             <span>G9POS</span>
