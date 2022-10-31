@@ -21,4 +21,5 @@ Point of sale application
 1. Install the latest LTS version of nodejs
 2. Switch to the frontend folder
 3. Run ```npm install``` to install the dependencies
-4. Then run ```npm start``` to start the environment
+4. In scripts, replace ```"start": "WATCHPACK_POLLING=true react-scripts start",``` with ```"start": "react-scripts start",```
+5. Then run ```npm start``` to start the environment
