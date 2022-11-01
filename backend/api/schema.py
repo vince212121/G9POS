@@ -24,6 +24,7 @@ class VendorType(DjangoObjectType):
 class CategoryType(DjangoObjectType):
     class Meta:
         model = Category
+
 class Query(graphene.ObjectType):
     product = GenericScalar(user_token=graphene.String())
     customer_order = GenericScalar(user_token=graphene.String())
@@ -31,6 +32,7 @@ class Query(graphene.ObjectType):
     customer = graphene.List(CustomerType, user_token=graphene.String())
     vendor = graphene.List(VendorType, user_token=graphene.String())
     category = graphene.List(CategoryType, user_token=graphene.String())
+    store_name = GenericScalar(user_token=graphene.String())
 
     def resolve_product(self, info, user_token):
         try:
@@ -78,6 +80,7 @@ class Query(graphene.ObjectType):
                 "items": [
                     {
                         "id": item.id,
+                        "name": item.name,
                         "brand": item.brand,
                         "vendor": {
                             "name": item.vendor.name,
@@ -101,6 +104,7 @@ class Query(graphene.ObjectType):
                     "email": order.customer.email,
                     "phone_number": order.customer.phone_number 
                 } if order.customer is not None else None,
+                "total_cost": f"{order.total_cost}",
             })
         return ordersCollection
 
@@ -128,6 +132,7 @@ class Query(graphene.ObjectType):
                     {
                         "id": item.id,
                         "brand": item.brand,
+                        "name": item.name,
                         "vendor": {
                             "name": item.vendor.name,
                             "email": item.vendor.email,
@@ -144,6 +149,7 @@ class Query(graphene.ObjectType):
                     }
                     for item in order.items.all()
                 ],
+                "total_cost": f"{order.total_cost}",
             })
         return ordersCollection
 
@@ -179,6 +185,14 @@ class Query(graphene.ObjectType):
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
         return Category.objects.filter(user=user)
+
+    def resolve_store_name(self, info, user_token):
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+            return {"store": user.store_name}
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
 
 # Mutations
 # Products/Inventory
@@ -316,6 +330,7 @@ class VendorOrderMutation(graphene.Mutation):
         order_id = graphene.Int(default_value=None)
         vendor_data = GenericScalar(default_value=None)
         items = GenericScalar(required=True)
+        original_items = GenericScalar(required=True)
         quantity_ordered = graphene.Int(required=True)
         user_token = graphene.String(required=True)
 
@@ -324,7 +339,7 @@ class VendorOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    def mutate(root, info, action, vendor_data, order_id, items, quantity_ordered, user_token):
+    def mutate(root, info, action, vendor_data, order_id, items, original_items, quantity_ordered, user_token):
         try:
             email: get_user_model = jwt_decode(user_token).get("email")
             user: User = User.objects.filter(email=email).first()
@@ -343,9 +358,6 @@ class VendorOrderMutation(graphene.Mutation):
                 if vendor_data.get("email") is None or vendor_data.get("name") is None:
                     return {"ok": False, "message": "Missing name or email", "status": 400}
                 vendor, created = Vendor.objects.get_or_create(name=vendor_data.get("name"), email=vendor_data.get("email"))
-                if vendor_data.get("phone_number"):
-                    vendor.phone_number = vendor_data.get("phone_number")
-                    vendor.save(update_fields=["phone_number"])
                 vendorOrder: VendorOrder = VendorOrder.objects.create(
                     vendor=vendor,
                     quantity_ordered=quantity_ordered
@@ -390,13 +402,38 @@ class VendorOrderMutation(graphene.Mutation):
                         user=user
                     )
                     # updating with new data
-                    inventory.quantity = inventory.quantity - vendorOrder.quantity_ordered + quantity_ordered
-                    inventory.save(update_fields=["quantity"])
-                    vendorOrder.total_cost += inventory.price * quantity_ordered
-                    vendorOrder.quantity_ordered = quantity_ordered
-                    vendorOrder.items.add(inventory)
-                    vendorOrder.save(update_fields=["total_cost", "quantity_ordered"])
+                    if item not in original_items:
+                        inventory.quantity += quantity_ordered if quantity_ordered is not vendorOrder.quantity_ordered else vendorOrder.quantity_ordered
+                        inventory.save(update_fields=["quantity"])
                     
+                    
+                    vendorOrder.total_cost += inventory.price * quantity_ordered
+                    vendorOrder.items.add(inventory)
+                    vendorOrder.save(update_fields=["total_cost"])
+                    
+                for item in original_items:
+                    category: Category = Category.objects.get(name=item.get("category").get("name"))
+                    vendor: Vendor = Vendor.objects.get(
+                        name=vendor_data.get("name"),
+                        email=vendor_data.get("email")
+                    )
+                    inventory: Inventory = Inventory.objects.get(
+                        category=category,
+                        vendor=vendor,
+                        name=item.get("name"),
+                        brand=item.get("brand"),
+                        user=user
+                    )
+
+                    if item not in items:
+                        inventory.quantity -= vendorOrder.quantity_ordered
+                        if inventory.quantity < 0:
+                            inventory.quantity = 0
+                        inventory.save(update_fields=["quantity"])
+
+                vendorOrder.quantity_ordered = quantity_ordered
+                vendorOrder.save(update_fields=["quantity_ordered"])
+
                 return VendorOrderMutation(ok=True, status=200, message="Vendor Order updated")
             except:
                 return VendorOrderMutation(ok=False, status=400, message="Vendor Order unable to update")
@@ -404,6 +441,23 @@ class VendorOrderMutation(graphene.Mutation):
             try:
                 if order_id is not None:
                     vendorOrder = VendorOrder.objects.get(id=order_id)
+                    for item in original_items:
+                        category: Category = Category.objects.get(name=item.get("category").get("name"))
+                        vendor: Vendor = Vendor.objects.get(
+                            name=item.get("vendor").get("name"),
+                            email=item.get("vendor").get("email"),
+                        )
+                        inventory:Inventory = Inventory.objects.get(
+                            category=category,
+                            vendor=vendor,
+                            name=item.get("name"), 
+                            brand=item.get("brand"),
+                            user=user,
+                        )
+
+                        inventory.quantity -= vendorOrder.quantity_ordered
+                        inventory.save(update_fields=["quantity"])
+                    
                     vendorOrder.delete()
                 else:
                     return VendorOrderMutation(ok=False, status=400, message="Vendor Order doesn't exist")
@@ -486,13 +540,14 @@ class CustomerOrderMutation(graphene.Mutation):
         order_id = graphene.Int(default_value=None)
         customer_data = GenericScalar(default_value=None)
         items = GenericScalar(required=True)
+        original_items = GenericScalar(required=True)
         user_token = graphene.String(required=True)
 
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
 
-    def mutate(root, info, action, customer_data, items, order_id, user_token):
+    def mutate(root, info, action, customer_data, items, original_items, order_id, user_token):
         try:
             email: get_user_model = jwt_decode(user_token).get("email")
             user: User = User.objects.filter(email=email).first()
@@ -508,9 +563,6 @@ class CustomerOrderMutation(graphene.Mutation):
                 if customer_data.get("email") is None or customer_data.get("name") is None:
                     return {"ok": False, "message": "Missing name or email", "status": 400}
                 customer = CustomerProfile.objects.get_or_create(name=customer_data.get("name"), email=customer_data.get("email"))
-                if customer_data.get("phone_number"):
-                    customer[0].phone_number = customer_data.get("phone_number")
-                    customer.save(update_fields=["phone_number"])
             customerOrder = CustomerOrder.objects.create(
                 customer=customer[0] if customer_data is not None else None
             )
@@ -538,7 +590,7 @@ class CustomerOrderMutation(graphene.Mutation):
                 customerOrder.items.add(inventory)
                 customerOrder.total_cost += inventory.price if inventory.quantity > 0 else 0
                 customerOrder.save(update_fields=["total_cost"])
-
+            
             return CustomerOrderMutation(ok=True, status=200, message="Customer Order added")
         elif action == "update":
             try:
@@ -565,14 +617,35 @@ class CustomerOrderMutation(graphene.Mutation):
                         user=user,
                     )
 
-                    inventory.quantity -= 1 if inventory.quantity > 0 else 0
-                    inventory.quantity_sold += 1 if inventory.quantity > 0 else 0
-                    inventory.save(update_fields=["quantity", "quantity_sold"])
+                    if item not in original_items:
+                        inventory.quantity -= 1 if inventory.quantity > 0 else 0
+                        inventory.quantity_sold += 1 
+                        inventory.save(update_fields=["quantity", "quantity_sold"])
+                        
 
                     # Append updated items
                     customerOrder.items.add(inventory)
                     customerOrder.total_cost += inventory.price if inventory.quantity > 0 else 0
                     customerOrder.save(update_fields=["total_cost"])
+
+                for item in original_items:
+                    category: Category = Category.objects.get(name=item.get("category").get("name"))
+                    vendor: Vendor = Vendor.objects.get(
+                        name=item.get("vendor").get("name"),
+                        email=item.get("vendor").get("email"),
+                    )
+                    inventory:Inventory = Inventory.objects.get(
+                        category=category,
+                        vendor=vendor,
+                        name=item.get("name"), 
+                        brand=item.get("brand"),
+                        user=user,
+                    )
+
+                    if item not in items:
+                        inventory.quantity += 1 
+                        inventory.quantity_sold -= 1 if inventory.quantity_sold > 0 else 0
+                        inventory.save(update_fields=["quantity", "quantity_sold"])
 
                 return CustomerOrderMutation(ok=True, status=200, message="Customer Order updated")
             except:
@@ -582,6 +655,23 @@ class CustomerOrderMutation(graphene.Mutation):
                 if order_id is not None:
                     customerOrder = CustomerOrder.objects.get(id=order_id, user=user)
                     customerOrder.delete()
+                    for item in original_items:
+                        category: Category = Category.objects.get(name=item.get("category").get("name"))
+                        vendor: Vendor = Vendor.objects.get(
+                            name=item.get("vendor").get("name"),
+                            email=item.get("vendor").get("email"),
+                        )
+                        inventory:Inventory = Inventory.objects.get(
+                            category=category,
+                            vendor=vendor,
+                            name=item.get("name"), 
+                            brand=item.get("brand"),
+                            user=user,
+                        )
+
+                        inventory.quantity += 1 
+                        inventory.quantity_sold -= 1 if inventory.quantity_sold > 0 else 0
+                        inventory.save(update_fields=["quantity", "quantity_sold"])
                 else:
                     return CustomerOrderMutation(ok=False, status=400, message="Customer Order doesn't exist")
                 
@@ -688,21 +778,6 @@ class ClientLoginMutation(graphene.Mutation):
 
         return ClientLoginMutation(ok=True, status="200", message="Logged in", token=jwt_encode(jwt_payload(user)))
         
-class TestMutation(graphene.Mutation):
-    class Arguments:
-        user_token = graphene.String()
-
-    ok = graphene.Boolean()
-    status = graphene.String()
-    message = graphene.String()
-
-    def mutate(root, info, user_token):
-        print(user_token)
-        email: get_user_model = jwt_decode(user_token).get("email")
-        test: User = User.objects.filter(email=email).first()
-        print(test)
-
-        return TestMutation(ok=True, status="200", message="User created")
     
 class Mutations(graphene.ObjectType):
     product_mutation = ProductMutation.Field()
@@ -713,6 +788,5 @@ class Mutations(graphene.ObjectType):
     category_mutation = CategoryMutation.Field()
     create_user = CreateUserMutation.Field()
     user_login = ClientLoginMutation.Field()
-    test_mutation = TestMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutations)
