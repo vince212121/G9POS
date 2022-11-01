@@ -46,7 +46,7 @@ const PastCustomerOrders = (props: Props) => {
   });
   const { data, fetching, error } = result;
 
-  const [productResult, productMutation] = useMutation(CUSTOMER_ORDER_MUTATION);
+  const [customerResult, customerMutation] = useMutation(CUSTOMER_ORDER_MUTATION);
 
   const [openEditor, setOpenEditor] = useState(false);
   const [openAddModal, setAddModal] = useState(false);

@@ -18,6 +18,7 @@ import CreateVendorOrder from "./pages/CreateVendorOrder";
 import Inventory from "./pages/Inventory";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import Logout from "./pages/Logout";
 
 /*
   SVG icons:
@@ -57,6 +58,7 @@ const App = () => {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<SignUp />} />
+          <Route path="/logout" element={<Logout />} />
 
           <Route path="/vendor_order" element={<CreateVendorOrder />} />
           <Route path="/past_vendor_orders" element={<PastVendorOrders />} />

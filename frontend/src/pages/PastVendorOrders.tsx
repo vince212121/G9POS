@@ -48,7 +48,7 @@ const PastVendorOrders = ({}: Props) => {
   });
   const { data, fetching, error } = result;
 
-  const [productResult, productMutation] = useMutation(VENDOR_ORDER_MUTATION);
+  const [vendorResult, vendorMutation] = useMutation(VENDOR_ORDER_MUTATION);
 
   const [openEditor, setOpenEditor] = useState(false);
   const [openAddModal, setAddModal] = useState(false);

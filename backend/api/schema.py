@@ -630,28 +630,32 @@ class CreateUserMutation(graphene.Mutation):
         password = graphene.String(required=True)
         is_owner = graphene.Boolean(required=True)
         is_employee = graphene.Boolean(required=True)
+        store_name = graphene.String(required=True)
 
     ok = graphene.Boolean()
     status = graphene.String()
     message = graphene.String()
+    token = graphene.String()
 
-    def mutate(root, info, email, password, is_owner, is_employee):
+    def mutate(root, info, email, password, is_owner, is_employee, store_name):
         if (is_owner):
             user = get_user_model() (
                 email=email,
                 is_owner=is_owner,
-                is_employee=is_employee
+                is_employee=is_employee,
+                store_name=store_name,
             )
             user.set_password(password)
             user.save()
         elif (is_employee):
             user = get_user_model() (
                 email=email,
-                is_employee=is_employee
+                is_employee=is_employee,
+                store_name=store_name,
             )
             user.set_password(password)
             user.save()
-        return CreateUserMutation(ok=True, status="200", message="User created")
+        return CreateUserMutation(ok=True, status="200", message="User created", token=jwt_encode(jwt_payload(user)))
 
 class ClientLoginMutation(graphene.Mutation):
     class Arguments:

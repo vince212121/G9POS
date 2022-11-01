@@ -57,9 +57,7 @@ const PRODUCT_MUTATION = gql`
 type Props = {};
 
 const Inventory = (props: Props) => {
-  // const userToken = Cookies.get("token");
-  const userToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImV4cCI6MTY2NzI0OTAzMSwib3JpZ0lhdCI6MTY2NzI0ODczMX0.tKE20f55n6zmcJ94X9hUYMi8P1HCeLWPTVYksARTTsY";
+  const userToken = Cookies.get("token");
 
   const [result, reexecuteQuery] = useQuery({
     query: GET_INVENTORY_DATA,
