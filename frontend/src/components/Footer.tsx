@@ -9,11 +9,7 @@ const Footer = (props: Props) => {
       <div className="md:flex md:justify-between">
         <div className="mb-6 md:mb-0">
           <Link to="/" className="flex items-center">
-            <img
-              src="/images/logo.png"
-              className="mr-3 h-8"
-              alt="Logo"
-            />
+            <img src="/images/logo.png" className="mr-3 h-8" alt="Logo" />
             <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
               G9POS
             </span>
@@ -22,34 +18,34 @@ const Footer = (props: Props) => {
         <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
           <div>
             <h2 className="mb-6 text-sm font-semibold uppercase text-white">
-              Example
+              About G9POS
             </h2>
             <ul className="text-gray-400">
               <li className="mb-4">
                 <Link to="/" className="hover:underline">
-                  Example
+                  About us
                 </Link>
               </li>
               <li>
                 <Link to="/" className="hover:underline">
-                  Example
+                  Our Team
                 </Link>
               </li>
             </ul>
           </div>
           <div>
             <h2 className="mb-6 text-sm font-semibold uppercase text-white">
-              Example
+              Help & FAQ
             </h2>
             <ul className="text-gray-400">
               <li className="mb-4">
                 <Link to="/" className="hover:underline">
-                  Example
+                  FAQ
                 </Link>
               </li>
               <li>
                 <Link to="/" className="hover:underline">
-                  Example
+                  Contact Us
                 </Link>
               </li>
             </ul>

@@ -13,7 +13,7 @@ const Navbar = ({ additionalStyles }: Props) => {
         {menuItems.map((menu, index) => {
           return <MenuItems item={menu} index={index} key={index} />;
         })}
-        <Link to="/logout" className="text-white flex space-x-2 md:hidden">
+        <Link to="/logout" className="text-gray-700 flex space-x-2 md:hidden">
           <span>Logout</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"

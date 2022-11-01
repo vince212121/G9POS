@@ -17,7 +17,7 @@ const Header = (props: Props) => {
   useEffect(() => {
     setUserToken(Cookies.get("token"));
   }, [location.pathname]);
-
+  const [userMenu, setUserMenu] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
 
   if (userToken) {
@@ -30,26 +30,53 @@ const Header = (props: Props) => {
               <img src="/images/logo.png" className="mr-3 h-8" alt="Logo" />
             </Link>
             <Navbar additionalStyles="flex space-x-4 text-white" />
-            <Link
-              to="/logout"
+            <button
+              onClick={() => {
+                setUserMenu(!userMenu);
+              }}
               className="text-white text-lg flex space-x-2 absolute right-5"
             >
-              <span>Logout</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-8 h-8"
                 viewBox="0 0 24 24"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"
+                  d="M5.121 17.804A13.937 13.937 0 0 1 12 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
                 />
               </svg>
-            </Link>
+            </button>
+            {userMenu && (
+              <div className="absolute mt-14 right-5 bg-gray-200 w-40">
+                <div className="flex flex-col p-4">
+                  <Link
+                    to="/logout"
+                    className="text-gray-700 text-lg flex space-x-2"
+                  >
+                    <span>Logout</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
@@ -107,7 +134,7 @@ const Header = (props: Props) => {
                     />
                   </svg>
                 </button>
-                <Navbar additionalStyles="flex flex-col space-x-4 text-white" />
+                <Navbar additionalStyles="space-y-4 py-2 bg-gray-200 absolute space-x-4 text-gray-700 w-[120px] mt-8" />
               </div>
             ) : null}
           </div>

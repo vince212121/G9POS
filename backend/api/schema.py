@@ -12,7 +12,6 @@ from api.models import (
 )
 from graphql_jwt.utils import jwt_payload, jwt_encode, jwt_decode
 from graphene.types.generic import GenericScalar
-from graphql_jwt.decorators import login_required
 
 class CustomerType(DjangoObjectType):
     class Meta:
@@ -33,13 +32,13 @@ class Query(graphene.ObjectType):
     vendor = graphene.List(VendorType, user_token=graphene.String())
     category = graphene.List(CategoryType, user_token=graphene.String())
 
-    # @login_required
     def resolve_product(self, info, user_token):
-        email: get_user_model = jwt_decode(user_token).get("email")
-        user: User = User.objects.filter(email=email).first()
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         items = Inventory.objects.filter(user=user)
         return [
             {
@@ -63,13 +62,13 @@ class Query(graphene.ObjectType):
             for item in items
         ]
 
-    # @login_required
     def resolve_customer_order(self, info, user_token):
-        email: get_user_model = jwt_decode(user_token).get("email")
-        user: User = User.objects.filter(email=email).first()
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+            
         orders: CustomerOrder = CustomerOrder.objects.filter(user=user)
         ordersCollection = []
         for order in orders:
@@ -105,13 +104,13 @@ class Query(graphene.ObjectType):
             })
         return ordersCollection
 
-    # @login_required
     def resolve_vendor_order(self, info, user_token):
-        email: get_user_model = jwt_decode(user_token).get("email")
-        user: User = User.objects.filter(email=email).first()
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         orders: VendorOrder = VendorOrder.objects.filter(user=user)
         ordersCollection = []
         for order in orders:
@@ -147,30 +146,36 @@ class Query(graphene.ObjectType):
                 ],
             })
         return ordersCollection
-    
-    # @login_required
+
     def resolve_customer(self, info, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
         return CustomerProfile.objects.filter(user=user)
 
-    # @login_required
     def resolve_vendor(self, info, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
         return Vendor.objects.filter(user=user)
 
-    # @login_required
     def resolve_category(self, info, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
         return Category.objects.filter(user=user)
@@ -194,11 +199,13 @@ class ProductMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    # @login_required
     def mutate(root, info, action, category, vendor, name, brand, description, quantity, quantity_sold, price, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         action = action.lower()
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
@@ -255,11 +262,13 @@ class VendorMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    # @login_required
     def mutate(root, info, action, name, email, updated_email, phone, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         action = action.lower()
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
@@ -315,11 +324,13 @@ class VendorOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    # @login_required
     def mutate(root, info, action, vendor_data, order_id, items, quantity_ordered, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         action = action.lower()
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
@@ -417,11 +428,13 @@ class CustomerMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    # @login_required
     def mutate(root, info, action, name, email, updated_email, phone, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         action = action.lower()
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
@@ -479,11 +492,13 @@ class CustomerOrderMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    # @login_required
     def mutate(root, info, action, customer_data, items, order_id, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         action = action.lower()
         email: get_user_model = jwt_decode(user_token).get("email")
         user: User = User.objects.filter(email=email).first()
@@ -588,15 +603,14 @@ class CategoryMutation(graphene.Mutation):
     status = graphene.String()
     message = graphene.String()
 
-    # @login_required
     def mutate(root, info, action, name, updated_name, user_token):
-        # user = info.context.user
-        # if user.is_anonymous:
-        #     return {"ok": False, "message": "Not Logged in", "status": 401}
-        
+        try:
+            email: get_user_model = jwt_decode(user_token).get("email")
+            user: User = User.objects.filter(email=email).first()
+        except:
+            return {"ok": False, "message": "Unauthorized user", "status": 401}
+
         action = action.lower()
-        email: get_user_model = jwt_decode(user_token).get("email")
-        user: User = User.objects.filter(email=email).first()
 
         if action == "add":
             category, created = Category.objects.get_or_create(name=name, user=user)
@@ -623,7 +637,6 @@ class CategoryMutation(graphene.Mutation):
             return CategoryMutation(ok=False, status=400, message="Invalid Action")
 
 # Users
-# https://www.howtographql.com/graphql-python/4-authentication/
 class CreateUserMutation(graphene.Mutation):
     class Arguments:
         email = graphene.String(required=True)

@@ -64,9 +64,9 @@ const MenuItems = ({ item, index }: Props) => {
               )}
             </div>
           </button>
-          <ul className={`${dropdown ? "" : "hidden"}`}>
+          <ul className={`${dropdown ? "space-y-4 mt-2" : "hidden"}`}>
             {item.submenu.map((submenu: any, i: number) => (
-              <li key={i}>
+              <li key={i} className="">
                 {submenu.submenu ? (
                   <>
                     <button
@@ -94,9 +94,13 @@ const MenuItems = ({ item, index }: Props) => {
                         </svg>
                       </span>
                     </button>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col my-2 space-y-2">
                       {submenu.submenu.map((submenu2: any, j: number) => (
-                        <Link to={submenu2.url} className="text-right md:pl-4" key={j}>
+                        <Link
+                          to={submenu2.url}
+                          className="text-left ml-4 "
+                          key={j}
+                        >
                           <span>{submenu2.title}</span>
                         </Link>
                       ))}
@@ -110,7 +114,9 @@ const MenuItems = ({ item, index }: Props) => {
           </ul>
         </>
       ) : (
-        <Link to={item.url} className="pl-4 md:pl-0">{item.title}</Link>
+        <Link to={item.url} className={`${item.url === "/" ? "ml-4" : ""}`}>
+          {item.title}
+        </Link>
       )}
     </li>
   );
