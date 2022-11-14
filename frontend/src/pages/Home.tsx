@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
+import { SliderData } from "../components/data";
+import ImageSlider from "../components/ImageSlider";
+
 import purchase from "../images/purchase.png";
 import orderHistoryVendor from "../images/orderhistory.png";
 import stocks from "../images/stocks.png";
@@ -23,6 +26,9 @@ const menus = [
   { menu: "Customer Order History", image: orderHistoryCustomer, link: "/past_customer_orders"  },
   { menu: "Admin", image: admin, link: "/"  },
 ];
+
+
+
 
 
 
@@ -94,7 +100,14 @@ const Home = (props: Props) => {
       )}
       {!isLoggedIn && (
         <div>
-          <div className="text-center pt-5">Please log in</div>
+           <div className="text-center pt-5">Please log in</div>
+          <div>
+            <ImageSlider slides={SliderData} />
+         </div>
+        
+
+
+
         </div>
       )}
     </div>
