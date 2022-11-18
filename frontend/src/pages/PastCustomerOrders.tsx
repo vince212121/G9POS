@@ -175,7 +175,7 @@ const PastCustomerOrders = (props: Props) => {
   };
 
   return (
-    <div className="lg:mx-4 mt-8 w-screen overflow-x-auto">
+    <div className="lg:mx-4 mt-8 h-screen w-screen overflow-x-auto">
       {openEditor && (
         <Modal title="Edit Order" setCloseModal={setOpenEditor}>
           <div className="sm:h-[10rem] overflow-y-auto md:h-full">
