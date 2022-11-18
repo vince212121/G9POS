@@ -37,7 +37,7 @@ const Login = (props: Props) => {
   const [user, setUser] = useReducer(reducer, userState);
 
   return (
-    <div className="lg:mx-4 mt-8 w-screen flex justify-center">
+    <div className="lg:mx-4 mt-8 h-screen w-screen flex justify-center">
       <form
         className="flex flex-col w-full mx-6 lg:mx-0 lg:w-1/3 space-y-4"
         onSubmit={(e) => {

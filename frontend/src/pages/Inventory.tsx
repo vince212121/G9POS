@@ -212,7 +212,7 @@ const Inventory = (props: Props) => {
   if (error) return <Error />;
 
   return (
-    <div className="lg:mx-4 mt-8 w-screen overflow-x-auto">
+    <div className="lg:mx-4 mt-8 h-screen w-screen overflow-x-auto">
       {openEditor && (
         <Modal title="Edit Product" setCloseModal={setOpenEditor}>
           <div className="h-[30rem] sm:h-[10rem] md:h-full overflow-y-auto">

@@ -5,7 +5,7 @@ type Props = {};
 
 const Logout = (props: Props) => {
   return (
-    <div className="pb-40 w-screen flex flex-col items-center justify-center space-y-6">
+    <div className="pb-40 w-screen h-screen flex flex-col items-center justify-center space-y-6">
       <span className="text-xl font-semibold">You have logged out</span>
       <Link
         to="/"

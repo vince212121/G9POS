@@ -7,7 +7,7 @@ const Layout = () => {
     <div className="flex flex-col justify-between">
       <Header />
       {/* TODO: Add styling to the container */}
-      <div className="flex h-screen overflow-x-auto">
+      <div className="flex overflow-x-auto">
         <Outlet />
       </div>
       <Footer />
