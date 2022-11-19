@@ -45,7 +45,7 @@ const Home = (props: Props) => {
 
   if (!userToken) {
     return (
-      <div className="w-screen">
+      <div className="w-screen h-screen md:h-full">
         <div className="text-center pt-5">Please log in</div>
         <div>
           <ImageSlider slides={SliderData} />
