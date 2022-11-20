@@ -360,7 +360,8 @@ class VendorOrderMutation(graphene.Mutation):
                 vendor, created = Vendor.objects.get_or_create(name=vendor_data.get("name"), email=vendor_data.get("email"))
                 vendorOrder: VendorOrder = VendorOrder.objects.create(
                     vendor=vendor,
-                    quantity_ordered=quantity_ordered
+                    quantity_ordered=quantity_ordered,
+                    user=user
                 )
             vendorOrder.total_cost = 0
             for item in items:
@@ -564,7 +565,8 @@ class CustomerOrderMutation(graphene.Mutation):
                     return {"ok": False, "message": "Missing name or email", "status": 400}
                 customer = CustomerProfile.objects.get_or_create(name=customer_data.get("name"), email=customer_data.get("email"))
             customerOrder = CustomerOrder.objects.create(
-                customer=customer[0] if customer_data is not None else None
+                customer=customer[0] if customer_data is not None else None,
+                user=user
             )
             customerOrder.total_cost = 0
             for item in items:

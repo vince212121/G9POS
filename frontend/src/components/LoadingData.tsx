@@ -4,7 +4,7 @@ type Props = {};
 
 const LoadingData = (props: Props) => {
   return (
-    <div className="flex flex-col pb-40 justify-center items-center w-screen">
+    <div className="flex flex-col pb-40 justify-center items-center w-screen h-screen">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

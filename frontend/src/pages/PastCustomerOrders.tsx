@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { gql, useMutation, useQuery } from "urql";
 import Error from "../components/Error";
 import LoadingData from "../components/LoadingData";
@@ -25,7 +25,7 @@ const CUSTOMER_ORDER_MUTATION = gql`
   mutation CustomerOrderMutation(
     $action: String!
     $orderId: Int!
-    $customerData: GenericScalar!
+    $customerData: GenericScalar
     $items: GenericScalar!
     $originalItems: GenericScalar!
     $userToken: String!
@@ -84,9 +84,12 @@ const PastCustomerOrders = (props: Props) => {
   );
   const [customer, setCustomer] = useReducer(reducer, customerState);
 
-  if (!userToken) {
+  useEffect(() => {
+    reexecuteQuery({ requestPolicy: "network-only" });
+  }, [reexecuteQuery]);
+
+  if (!userToken)
     return <Error message="401 - Unauthorized access to inventory" />;
-  }
 
   if (fetching) return <LoadingData />;
 
@@ -98,7 +101,7 @@ const PastCustomerOrders = (props: Props) => {
       orderId: customer.id,
       items: customer.items,
       originalItems: initialCustomer.items,
-      customerData: customer.customer,
+      customerData: customer?.customer ?? null,
       userToken: customer.userToken,
     });
     if (editResult?.data?.customerOrderMutation?.ok) {
@@ -130,7 +133,7 @@ const PastCustomerOrders = (props: Props) => {
         orderId: initialCustomer.id,
         items: initialCustomer.items,
         originalItems: initialCustomer.items,
-        customerData: initialCustomer.customer,
+        customerData: initialCustomer?.customer,
         userToken: initialCustomer.userToken,
       });
 
@@ -184,7 +187,6 @@ const PastCustomerOrders = (props: Props) => {
                 className="flex flex-col space-y-6 overflow-y-auto"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  // setCustomer(customerState);
                 }}
               >
                 <div className="space-x-10 flex justify-center items-center">
@@ -208,7 +210,7 @@ const PastCustomerOrders = (props: Props) => {
                         setShowMessage(true);
                       }
                     }}
-                    value={customer.customer.name}
+                    value={customer?.customer?.name ?? ""}
                   >
                     <option disabled value="">
                       select an option
@@ -274,14 +276,14 @@ const PastCustomerOrders = (props: Props) => {
               onClick={() => {
                 setInitialCustomer({
                   id: co.id,
-                  customer: co.customer,
+                  customer: co.customer ?? null,
                   items: co.items,
                   datePurchased: co.date_purchased,
                   totalCost: co.total_cost,
                 });
                 setCustomer({
                   id: co.id,
-                  customer: co.customer,
+                  customer: co.customer ?? null,
                   items: co.items,
                   datePurchased: co.date_purchased,
                   totalCost: co.total_cost,

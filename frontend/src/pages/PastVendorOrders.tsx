@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { gql, useMutation, useQuery } from "urql";
 import Error from "../components/Error";
 import LoadingData from "../components/LoadingData";
@@ -75,6 +75,10 @@ const PastVendorOrders = ({}: Props) => {
   const [initialVendor, setInitialVendor] = useReducer(reducer, vendorState);
   const [vendor, setVendor] = useReducer(reducer, vendorState);
 
+  useEffect(() => {
+    reexecuteQuery({ requestPolicy: "network-only" });
+  }, [reexecuteQuery]);
+
   if (!userToken) {
     return <Error message="401 - Unauthorized access to inventory" />;
   }
@@ -111,13 +115,6 @@ const PastVendorOrders = ({}: Props) => {
       });
       setShowMessage(true);
     }
-
-    setMessage({
-      message: "Order saved",
-      error: false,
-      confirmation: true,
-    });
-    setShowMessage(true);
     setOpenEditor(false);
   };
 
@@ -193,12 +190,14 @@ const PastVendorOrders = ({}: Props) => {
                     placeholder="Quantity Ordered"
                     className="p-2 border-b border-gray-700 bg-white w-full"
                     value={vendor.quantityOrdered}
-                    onChange={(e) =>
-                      setVendor({
-                        quantityOrdered:
-                          e.target.value === "" ? 0 : parseInt(e.target.value),
-                      })
-                    }
+                    onChange={(e) => {
+                      const quantity =
+                        e.target.value === "" ? 0 : parseInt(e.target.value);
+                      if (quantity > 0)
+                        setVendor({
+                          quantityOrdered: quantity,
+                        });
+                    }}
                     onKeyPress={(event) => {
                       if (!/[0-9]/.test(event.key)) {
                         event.preventDefault();
