@@ -35,6 +35,7 @@ const PRODUCT_MUTATION = gql`
     $quantitySold: Int!
     $price: Float!
     $userToken: String!
+    $itemId: Int
   ) {
     productMutation(
       action: $action
@@ -46,6 +47,7 @@ const PRODUCT_MUTATION = gql`
       quantity: $quantity
       quantitySold: $quantitySold
       price: $price
+      itemId: $itemId
       userToken: $userToken
     ) {
       ok
@@ -143,6 +145,7 @@ const Inventory = (props: Props) => {
       quantitySold: product.quantitySold,
       price: product.price,
       userToken: product.userToken,
+      itemId: product.id,
     });
     if (editResult?.data?.productMutation?.ok) {
       reexecuteQuery({ requestPolicy: "network-only" });
@@ -179,6 +182,7 @@ const Inventory = (props: Props) => {
         quantitySold: initialProduct.quantitySold,
         price: initialProduct.price,
         userToken: initialProduct.userToken,
+        itemId: product.id,
       });
       if (deleteResult?.data?.productMutation?.ok) {
         reexecuteQuery({ requestPolicy: "network-only" });
@@ -589,7 +593,7 @@ const Inventory = (props: Props) => {
             {/* Modal footer */}
             <ModalButtons
               firstButtonClick={addItem}
-              firstButtonText="Save"
+              firstButtonText="Add"
               firstDisabled={
                 product.name === "" ||
                 product.description === "" ||

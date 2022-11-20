@@ -19,6 +19,7 @@ import Inventory from "./pages/Inventory";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Logout from "./pages/Logout";
+import Categories from "./pages/Categories";
 
 /*
   SVG icons:
@@ -55,6 +56,7 @@ const App = () => {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/vendors" element={<Vendors />} />
+          <Route path="/categories" element={<Categories />} />
         </Route>
       </Routes>
     </Provider>

@@ -8,7 +8,6 @@ type Props = {
 
 const ProductItem = ({ selected, item, clickItem }: Props) => {
   const [selectedItem, setSelectedItem] = useState(selected);
-  const [quantity, setQuantity] = useState(item.quantity);
   return (
     <button
       type="button"

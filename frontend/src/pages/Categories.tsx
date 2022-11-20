@@ -11,30 +11,24 @@ type Props = {};
 
 const GET_PAGE_DATA = gql`
   query ($userToken: String!) {
-    customer(userToken: $userToken) {
+    category(userToken: $userToken) {
       id
       name
-      email
-      phoneNumber
     }
   }
 `;
 
-const CUSTOMER_MUTATION = gql`
-  mutation CustomerMutation(
+const VENDOR_MUTATION = gql`
+  mutation CategoryMutation(
     $action: String!
-    $email: String!
     $name: String!
-    $phone: String
-    $customerId: Int
+    $categoryId: Int
     $userToken: String!
   ) {
-    customerMutation(
+    categoryMutation(
       action: $action
-      email: $email
       name: $name
-      phone: $phone
-      customerId: $customerId
+      categoryId: $categoryId
       userToken: $userToken
     ) {
       ok
@@ -44,7 +38,7 @@ const CUSTOMER_MUTATION = gql`
   }
 `;
 
-const Customers = (props: Props) => {
+const Categories = (props: Props) => {
   const userToken = Cookies.get("token");
   const [result, reexecuteQuery] = useQuery({
     query: GET_PAGE_DATA,
@@ -52,7 +46,7 @@ const Customers = (props: Props) => {
   });
   const { data, fetching, error } = result;
 
-  const [customerResult, customerMutation] = useMutation(CUSTOMER_MUTATION);
+  const [categoryResult, categoryMutation] = useMutation(VENDOR_MUTATION);
 
   const [openEditor, setOpenEditor] = useState(false);
   const [openAddModal, setAddModal] = useState(false);
@@ -67,36 +61,31 @@ const Customers = (props: Props) => {
   };
   const [message, setMessage] = useReducer(reducer, messageState);
 
-  const customerState = {
+  const categoryState = {
     id: 0,
-    email: "",
     name: "",
-    phone: "",
     userToken: userToken,
   };
-
-  const [customer, setCustomer] = useReducer(reducer, customerState);
+  const [category, setCategory] = useReducer(reducer, categoryState);
 
   if (!userToken)
-    return <Error message="401 - Unauthorized access to customers" />;
+    return <Error message="401 - Unauthorized access to categorys" />;
 
   if (fetching) return <LoadingData />;
 
   if (error) return <Error />;
 
-  const createCustomer = async () => {
-    let addResult = await customerMutation({
+  const createCategory = async () => {
+    let addResult = await categoryMutation({
       action: "add",
-      email: customer.email,
-      name: customer.name,
-      phone: customer.phone,
-      userToken: customer.userToken,
+      name: category.name,
+      userToken: category.userToken,
     });
-    if (addResult?.data?.customerMutation?.ok) {
+    if (addResult?.data?.categoryMutation?.ok) {
       reexecuteQuery({ requestPolicy: "network-only" });
-      setCustomer(customerState);
+      setCategory(categoryState);
       setMessage({
-        message: "Created Customer",
+        message: "Created Category",
         error: false,
         confirmation: true,
       });
@@ -112,20 +101,18 @@ const Customers = (props: Props) => {
     setAddModal(false);
   };
 
-  const updateCustomer = async () => {
-    let updateResult = await customerMutation({
+  const updateCategory = async () => {
+    let updateResult = await categoryMutation({
       action: "update",
-      email: customer.email,
-      name: customer.name,
-      phone: customer.phone,
-      customerId: customer.id,
-      userToken: customer.userToken,
+      name: category.name,
+      categoryId: category.id,
+      userToken: category.userToken,
     });
-    if (updateResult?.data?.customerMutation?.ok) {
+    if (updateResult?.data?.categoryMutation?.ok) {
       reexecuteQuery({ requestPolicy: "network-only" });
-      setCustomer(customerState);
+      setCategory(categoryState);
       setMessage({
-        message: "Updated Customer",
+        message: "Updated Category",
         error: false,
         confirmation: true,
       });
@@ -141,21 +128,19 @@ const Customers = (props: Props) => {
     setOpenEditor(false);
   };
 
-  const deleteCustomer = async () => {
+  const deleteCategory = async () => {
     if (window.confirm("do you want to delete?")) {
-      let deleteResult = await customerMutation({
+      let deleteResult = await categoryMutation({
         action: "delete",
-        email: customer.email,
-        name: customer.name,
-        phone: customer.phone,
-        customerId: customer.id,
-        userToken: customer.userToken,
+        name: category.name,
+        categoryId: category.id,
+        userToken: category.userToken,
       });
-      if (deleteResult?.data?.customerMutation?.ok) {
+      if (deleteResult?.data?.categoryMutation?.ok) {
         reexecuteQuery({ requestPolicy: "network-only" });
-        setCustomer(customerState);
+        setCategory(categoryState);
         setMessage({
-          message: "Deleted Customer",
+          message: "Deleted Category",
           error: false,
           confirmation: true,
         });
@@ -175,54 +160,34 @@ const Customers = (props: Props) => {
   return (
     <div className="lg:mx-4 mt-8 h-screen w-screen overflow-x-auto">
       {openEditor && (
-        <Modal title="Edit Customer" setCloseModal={setOpenEditor}>
+        <Modal title="Edit Category" setCloseModal={setOpenEditor}>
           <div className="h-[30rem] sm:h-[10rem] overflow-y-auto md:h-full">
             <div className="p-6 space-y-6 flex flex-col">
               <form
                 className="flex flex-col space-y-6"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  setCustomer(customerState);
+                  setCategory(categoryState);
                 }}
               >
-                <div className="space-x-11 flex justify-center items-center">
+                <div className="space-x-10 flex justify-center items-center">
                   <span>Name</span>
                   <input
                     name="name"
                     placeholder="Name"
                     className="p-2 border-b border-gray-700 bg-white w-full"
-                    value={customer.name}
-                    onChange={(e) => setCustomer({ name: e.target.value })}
-                  />
-                </div>
-                <div className="space-x-12 flex justify-center items-center">
-                  <span>Email</span>
-                  <input
-                    name="email"
-                    placeholder="Email"
-                    className="p-2 border-b border-gray-700 bg-white w-full"
-                    value={customer.email}
-                    onChange={(e) => setCustomer({ email: e.target.value })}
-                  />
-                </div>
-                <div className="space-x-10 flex justify-center items-center">
-                  <span>Phone</span>
-                  <input
-                    name="phone"
-                    placeholder="Phone"
-                    className="p-2 border-b border-gray-700 bg-white w-full"
-                    value={customer.phone}
-                    onChange={(e) => setCustomer({ phone: e.target.value })}
+                    value={category.name}
+                    onChange={(e) => setCategory({ name: e.target.value })}
                   />
                 </div>
               </form>
             </div>
             {/* Modal footer */}
             <ModalButtons
-              firstButtonClick={updateCustomer}
+              firstButtonClick={updateCategory}
               firstButtonText="Save"
-              firstDisabled={customer.name === "" || customer.email === ""}
-              secondButtonClick={deleteCustomer}
+              firstDisabled={category.name === ""}
+              secondButtonClick={deleteCategory}
               secondButtonText="Delete"
               thirdButtonClick={() => {
                 setOpenEditor(false);
@@ -233,53 +198,33 @@ const Customers = (props: Props) => {
         </Modal>
       )}
       {openAddModal && (
-        <Modal title="Add Customer" setCloseModal={setAddModal}>
+        <Modal title="Add Category" setCloseModal={setAddModal}>
           <div className="h-[30rem] sm:h-[10rem] overflow-y-auto md:h-full">
             <div className="p-6 space-y-6 flex flex-col">
               <form
                 className="flex flex-col space-y-6"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  setCustomer(customerState);
+                  setCategory(categoryState);
                 }}
               >
-                <div className="space-x-11 flex justify-center items-center">
+                <div className="space-x-10 flex justify-center items-center">
                   <span>Name</span>
                   <input
                     name="name"
                     placeholder="Name"
                     className="p-2 border-b border-gray-700 bg-white w-full"
-                    value={customer.name}
-                    onChange={(e) => setCustomer({ name: e.target.value })}
-                  />
-                </div>
-                <div className="space-x-12 flex justify-center items-center">
-                  <span>Email</span>
-                  <input
-                    name="email"
-                    placeholder="Email"
-                    className="p-2 border-b border-gray-700 bg-white w-full"
-                    value={customer.email}
-                    onChange={(e) => setCustomer({ email: e.target.value })}
-                  />
-                </div>
-                <div className="space-x-10 flex justify-center items-center">
-                  <span>Phone</span>
-                  <input
-                    name="phone"
-                    placeholder="Phone"
-                    className="p-2 border-b border-gray-700 bg-white w-full"
-                    value={customer.phone}
-                    onChange={(e) => setCustomer({ phone: e.target.value })}
+                    value={category.name}
+                    onChange={(e) => setCategory({ name: e.target.value })}
                   />
                 </div>
               </form>
             </div>
             {/* Modal footer */}
             <ModalButtons
-              firstButtonClick={createCustomer}
+              firstButtonClick={createCategory}
               firstButtonText="Add"
-              firstDisabled={customer.email === "" || customer.name === ""}
+              firstDisabled={category.name === ""}
               thirdButtonClick={() => {
                 setAddModal(false);
               }}
@@ -293,33 +238,25 @@ const Customers = (props: Props) => {
           <tr>
             <th className="py-3 px-6">ID</th>
             <th className="py-3 px-6">Name</th>
-            <th className="py-3 px-6">Email</th>
-            <th className="py-3 px-6">Phone Number</th>
           </tr>
         </thead>
         <tbody>
-          {data.customer.map((customer: any, index: number) => (
+          {data.category.map((category: any, index: number) => (
             <tr
               className="border-b border-gray-700 bg-gray-100"
               key={index}
               onClick={() => {
                 if (!openAddModal) {
-                  setCustomer({
-                    id: parseInt(customer.id),
-                    name: customer.name,
-                    email: customer.email,
-                    phone: customer.phoneNumber,
+                  setCategory({
+                    id: parseInt(category.id),
+                    name: category.name,
                   });
                   setOpenEditor(true);
                 }
               }}
             >
-              <td className="py-4 px-6 whitespace-nowrap">{customer.id}</td>
-              <td className="py-4 px-6 whitespace-nowrap">{customer.name}</td>
-              <td className="py-4 px-6 whitespace-nowrap">{customer.email}</td>
-              <td className="py-4 px-6 whitespace-nowrap">
-                {customer.phoneNumber}
-              </td>
+              <td className="py-4 px-6 whitespace-nowrap">{category.id}</td>
+              <td className="py-4 px-6 whitespace-nowrap">{category.name}</td>
             </tr>
           ))}
         </tbody>
@@ -328,7 +265,7 @@ const Customers = (props: Props) => {
         className="fixed right-5 bottom-5 z-50 bg-white rounded-3xl"
         onClick={() => {
           if (!openEditor) {
-            setCustomer(customerState);
+            setCategory(categoryState);
             setAddModal(true);
           }
         }}
@@ -359,4 +296,4 @@ const Customers = (props: Props) => {
   );
 };
 
-export default Customers;
+export default Categories;
