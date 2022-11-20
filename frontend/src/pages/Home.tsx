@@ -1,38 +1,37 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { SliderData } from "../assets/data";
+import { SliderData } from "../assets/landingPageItems";
 import ImageSlider from "../components/ImageSlider";
 
-import purchase from "../images/purchase.png";
-import orderHistoryVendor from "../images/orderhistory.png";
-import stocks from "../images/stocks.png";
-import cOrder from "../images/cOrder.png";
-import orderHistoryCustomer from "../images/cOrderHistory.png";
-import vOrder from "../images/vOrder.png";
-import customers from "../images/customers.png";
-import vendors from "../images/vendors.png";
-import admin from "../images/admin.png";
 import Cookies from "js-cookie";
 
 const menus = [
-  { menu: "Purchase", image: purchase, link: "/order" },
-  { menu: "Create Customer Order", image: cOrder, link: "/customer_order" },
+  { menu: "Purchase", image: "/images/purchase.png", link: "/order" },
+  {
+    menu: "Create Customer Order",
+    image: "/images/cOrder.png",
+    link: "/customer_order",
+  },
   {
     menu: "Vendor Order History",
-    image: orderHistoryVendor,
+    image: "/images/orderhistory.png",
     link: "/past_vendor_orders",
   },
-  { menu: "Customers", image: customers, link: "/customers" },
-  { menu: "Create Vendor Orders", image: vOrder, link: "/vendor_order" },
-  { menu: "Inventory", image: stocks, link: "/inventory" },
-  { menu: "Vendors", image: vendors, link: "/vendors" },
+  { menu: "Customers", image: "/images/customers.png", link: "/customers" },
+  {
+    menu: "Create Vendor Orders",
+    image: "/images/vOrder.png",
+    link: "/vendor_order",
+  },
+  { menu: "Inventory", image: "/images/stocks.png", link: "/inventory" },
+  { menu: "Vendors", image: "/images/vendors.png", link: "/vendors" },
   {
     menu: "Customer Order History",
-    image: orderHistoryCustomer,
+    image: "/images/cOrderHistory.png",
     link: "/past_customer_orders",
   },
-  { menu: "Admin", image: admin, link: "/" },
+  { menu: "Admin", image: "/images/admin.png", link: "/" },
 ];
 
 type Props = {};
@@ -45,10 +44,7 @@ const Home = (props: Props) => {
   if (!userToken) {
     return (
       <div className="w-screen h-screen md:h-full">
-        <div className="text-center pt-5">Please log in</div>
-        <div>
-          <ImageSlider slides={SliderData} />
-        </div>
+        <ImageSlider slides={SliderData} />
       </div>
     );
   }

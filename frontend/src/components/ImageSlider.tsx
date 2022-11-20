@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 type Props = {
   slides: any;
@@ -6,15 +6,22 @@ type Props = {
 
 const ImageSlider = ({ slides }: Props) => {
   const [current, setCurrent] = useState(0);
+  const [pause, setPause] = useState(false);
   const length = slides.length;
 
-  const nextSlide = () => {
-    setCurrent(current === length - 1 ? 0 : current + 1);
-  };
+  const nextSlide = useCallback(() => {
+    if (!pause) setCurrent(current === length - 1 ? 0 : current + 1);
+  }, [current, length, pause]);
 
   const prevSlide = () => {
     setCurrent(current === 0 ? length - 1 : current - 1);
   };
+
+  useEffect(() => {
+    const interval = setInterval(nextSlide, 3000);
+
+    return () => clearInterval(interval);
+  }, [nextSlide]);
 
   if (!Array.isArray(slides) || length <= 0) {
     return null;
@@ -24,12 +31,18 @@ const ImageSlider = ({ slides }: Props) => {
     <div className="flex flex-row justify-center mt-5">
       {slides.map((slide, index) => {
         return (
-          <div className="flex justify-center" key={index}>
+          <div key={index} className="flex justify-center">
             {index === current && (
               <img
                 src={slide.image}
                 alt={slide.alt}
-                className="w-11/12 h-3/5 ml-0 "
+                className="h-full w-3/4 md:h-3/4"
+                onMouseEnter={() => {
+                  setPause(true);
+                }}
+                onMouseLeave={() => {
+                  setPause(false);
+                }}
               />
             )}
           </div>
