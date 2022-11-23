@@ -20,6 +20,12 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Logout from "./pages/Logout";
 import Categories from "./pages/Categories";
+import AboutUs from "./pages/footer/AboutUs";
+import OurTeam from "./pages/footer/OurTeam";
+import FAQ from "./pages/footer/FAQ";
+import ContactUs from "./pages/footer/ContactUs";
+import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
+import TermsAndConditions from "./pages/footer/TermsAndConditions";
 
 /*
   SVG icons:
@@ -57,6 +63,14 @@ const App = () => {
           <Route path="/customers" element={<Customers />} />
           <Route path="/vendors" element={<Vendors />} />
           <Route path="/categories" element={<Categories />} />
+
+          {/* Footer */}
+          <Route path="/about_us" element={<AboutUs />} />
+          <Route path="/our_team" element={<OurTeam />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact_us" element={<ContactUs />} />
+          <Route path="/privacy_policy" element={<PrivacyPolicy />} />
+          <Route path="/terms_and_conditions" element={<TermsAndConditions />} />
         </Route>
       </Routes>
     </Provider>

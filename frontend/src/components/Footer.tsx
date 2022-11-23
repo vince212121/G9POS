@@ -22,12 +22,12 @@ const Footer = (props: Props) => {
             </h2>
             <ul className="text-gray-400">
               <li className="mb-4">
-                <Link to="/" className="hover:underline">
+                <Link to="/about_us" className="hover:underline">
                   About us
                 </Link>
               </li>
               <li>
-                <Link to="/" className="hover:underline">
+                <Link to="/our_team" className="hover:underline">
                   Our Team
                 </Link>
               </li>
@@ -39,12 +39,12 @@ const Footer = (props: Props) => {
             </h2>
             <ul className="text-gray-400">
               <li className="mb-4">
-                <Link to="/" className="hover:underline">
+                <Link to="/faq" className="hover:underline">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link to="/" className="hover:underline">
+                <Link to="/contact_us" className="hover:underline">
                   Contact Us
                 </Link>
               </li>
@@ -56,12 +56,12 @@ const Footer = (props: Props) => {
             </h2>
             <ul className="text-gray-400">
               <li className="mb-4">
-                <Link to="/" className="hover:underline">
+                <Link to="/privacy_policy" className="hover:underline">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/" className="hover:underline">
+                <Link to="/terms_and_conditions" className="hover:underline">
                   Terms &amp; Conditions
                 </Link>
               </li>
