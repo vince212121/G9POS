@@ -1,7 +1,7 @@
 export const SliderData = [
   {
     image: "/images/Home.png",
-    alt: "example",
+    alt: "Home page",
   },
   {
     image: "/images/CreateOrder.png",
