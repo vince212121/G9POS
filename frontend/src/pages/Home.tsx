@@ -62,9 +62,6 @@ const Home = (props: Props) => {
                     onClick={() => navigate(menu.link)}
                     key={menu.menu}
                   >
-                    {/* <div className="w-60 h-60 ml-10">
-
-                    </div> */}
                     {menu.menu}
                     <img
                       className="w-20 h-20 md:w-40 md:h-40"

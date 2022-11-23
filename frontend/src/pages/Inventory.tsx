@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { gql, useMutation, useQuery } from "urql";
 import Error from "../components/Error";
 import LoadingData from "../components/LoadingData";
@@ -68,6 +68,10 @@ const Inventory = (props: Props) => {
   });
   const { data, fetching, error } = result;
 
+  useEffect(() => {
+    reexecuteQuery({ requestPolicy: "network-only" });
+  }, [reexecuteQuery]);
+  
   const [productResult, productMutation] = useMutation(PRODUCT_MUTATION);
 
   const [openEditor, setOpenEditor] = useState(false);
