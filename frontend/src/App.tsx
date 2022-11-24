@@ -26,6 +26,7 @@ import FAQ from "./pages/footer/FAQ";
 import ContactUs from "./pages/footer/ContactUs";
 import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import TermsAndConditions from "./pages/footer/TermsAndConditions";
+import EmailSent from "./pages/footer/EmailSent";
 
 /*
   SVG icons:
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="/contact_us" element={<ContactUs />} />
           <Route path="/privacy_policy" element={<PrivacyPolicy />} />
           <Route path="/terms_and_conditions" element={<TermsAndConditions />} />
+          <Route path="/email_sent" element={<EmailSent/>} />
         </Route>
       </Routes>
     </Provider>
