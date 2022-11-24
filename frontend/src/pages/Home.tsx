@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { gql, useQuery } from "urql";
 
 import { SliderData } from "../assets/landingPageItems";
 import ImageSlider from "../components/ImageSlider";
 
+import Error from "../components/Error";
+import LoadingData from "../components/LoadingData";
+
 import Cookies from "js-cookie";
+
+const GET_PAGE_DATA = gql`
+  query ($userToken: String!) {
+    product(userToken: $userToken)
+    customerOrder(userToken: $userToken)
+    vendorOrder(userToken: $userToken)
+    storeName(userToken: $userToken)
+  }
+`;
 
 const menus = [
   { menu: "Purchase", image: "/images/purchase.png", link: "/order" },
@@ -39,6 +52,18 @@ type Props = {};
 const Home = (props: Props) => {
   const userToken = Cookies.get("token");
 
+  const [result, reexecuteQuery] = useQuery({
+    query: GET_PAGE_DATA,
+    variables: { userToken },
+  });
+  const { data, fetching, error } = result;
+
+  console.log(data);
+
+  useEffect(() => {
+    reexecuteQuery({ requestPolicy: "network-only" });
+  }, [reexecuteQuery]);
+
   const navigate = useNavigate();
 
   if (!userToken) {
@@ -48,6 +73,10 @@ const Home = (props: Props) => {
       </div>
     );
   }
+
+  if (fetching) return <LoadingData />;
+
+  if (error) return <Error />;
 
   return (
     <div className="w-screen">
@@ -75,8 +104,7 @@ const Home = (props: Props) => {
           </main>
           {/* Info panel (you can put store information here) */}
           <div className="flex flex-col md:flex-row justify-center items-center space-y-5 md:space-y-0 md:space-x-5 border-2 rounded-lg m-5 p-5">
-            <span className="p-5 bg-red-100">Store Name</span>
-            <span className="p-5 bg-red-100">100%</span>
+            <span className="p-5 bg-red-100">{data.storeName.store}</span>
             <span className="p-5 bg-red-100">250 items</span>
             <span className="p-5 bg-red-100">$500</span>
           </div>
