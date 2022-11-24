@@ -1,7 +1,6 @@
 import React from "react";
 
 import { createClient, Provider, defaultExchanges } from "urql";
-import Cookies from "js-cookie";
 import { BASEURL } from "./assets/constants";
 
 import { Routes, Route } from "react-router-dom";
