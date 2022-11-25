@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { gql, useQuery } from "urql";
 
@@ -48,7 +48,7 @@ const menus = [
 ];
 
 type Props = {};
-
+var count = 0;
 const Home = (props: Props) => {
   const userToken = Cookies.get("token");
 
@@ -58,13 +58,14 @@ const Home = (props: Props) => {
   });
   const { data, fetching, error } = result;
 
-  console.log(data);
+ console.log(data);
 
   useEffect(() => {
     reexecuteQuery({ requestPolicy: "network-only" });
   }, [reexecuteQuery]);
 
   const navigate = useNavigate();
+
 
   if (!userToken) {
     return (
@@ -105,8 +106,8 @@ const Home = (props: Props) => {
           {/* Info panel (you can put store information here) */}
           <div className="flex flex-col md:flex-row justify-center items-center space-y-5 md:space-y-0 md:space-x-5 border-2 rounded-lg m-5 p-5">
             <span className="p-5 bg-red-100">{data.storeName.store}</span>
-            <span className="p-5 bg-red-100">250 items</span>
-            <span className="p-5 bg-red-100">$500</span>
+            <span className="p-5 bg-red-100">{data.product[0].quantity} Items</span> {/*Still needs to be fixed*/}
+            <span className="p-5 bg-red-100">${data.customerOrder.total_cost - data.vendorOrder.total_cost}</span>  {/*Still needs to be fixed*/}
           </div>
         </div>
       </div>
