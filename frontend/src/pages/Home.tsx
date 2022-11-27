@@ -7,6 +7,8 @@ import ImageSlider from "../components/ImageSlider";
 
 import Error from "../components/Error";
 import LoadingData from "../components/LoadingData";
+import Modal from "../components/Modal";
+import ModalButtons from "../components/ModalButtons";
 
 import Cookies from "js-cookie";
 
@@ -66,6 +68,10 @@ const Home = (props: Props) => {
 
   const navigate = useNavigate();
 
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [fItem1, setFItem1] = useState(false);
+  const [fItem2, setFItem2] = useState(false);
+  const [fItem3, setFItem3] = useState(false);
 
   if (!userToken) {
     return (
@@ -78,6 +84,47 @@ const Home = (props: Props) => {
   if (fetching) return <LoadingData />;
 
   if (error) return <Error />;
+
+  const createReport = () => {
+    setFilterVisible(false);
+  }
+
+  {/* Create report filter selection modal */}
+  { filterVisible && (
+    <Modal title="Create Report" setCloseModal={setFilterVisible}>
+      <div className="sm:h-[10rem] overflow-y-auto md:h-full">
+        <div className="p-6 space-y-6 flex flex-col">
+          <form className="flex flex-col space-y-6 overflow-y-auto">
+            <div className="space-x-10 flex justify-center items-center">
+              <div className="flex flex-col">
+                <label>
+                  <input type="checkbox" id="fItem1" checked={fItem1} onChange={() => setFItem1(!fItem1)} />
+                  Filter Item 1
+                </label>
+                <label>
+                  <input type="checkbox" id="fItem2" checked={fItem2} onChange={() => setFItem2(!fItem2)} />
+                  Filter Item 2
+                </label>
+                <label>
+                  <input type="checkbox" id="fItem3" checked={fItem3} onChange={() => setFItem3(!fItem3)} />
+                  Filter Item 3
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+        {/* Modal footer */}
+        <ModalButtons
+          firstButtonClick={createReport}
+          firstButtonText="Create Report"
+          secondButtonClick={() => {
+            setFilterVisible(false);
+          }}
+          secondButtonText="Cancel"
+        />
+      </div>
+    </Modal>
+  )}
 
   return (
     <div className="w-screen">
@@ -108,6 +155,7 @@ const Home = (props: Props) => {
             <span className="p-5 bg-red-100">{data.storeName.store}</span>
             <span className="p-5 bg-red-100">{data.product[0].quantity} Items</span> {/*Still needs to be fixed*/}
             <span className="p-5 bg-red-100">${data.customerOrder.total_cost - data.vendorOrder.total_cost}</span>  {/*Still needs to be fixed*/}
+            <button onClick={() => setFilterVisible(true)}><div className="p-5 bg-red-100">Create Report</div></button>
           </div>
         </div>
       </div>
