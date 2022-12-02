@@ -50,10 +50,11 @@ const menus = [
 ];
 
 type Props = {};
-var count = 0;
+
 const Home = (props: Props) => {
   const userToken = Cookies.get("token");
-
+  //const [totalItems, setTotalItems] = useState(0);
+  //const [data, setData] = useState([]);
   const [result, reexecuteQuery] = useQuery({
     query: GET_PAGE_DATA,
     variables: { userToken },
@@ -62,9 +63,51 @@ const Home = (props: Props) => {
 
  console.log(data);
 
+  const countTotal=()=>{
+    let count = 0;
+    
+    if(data != null)
+    {
+      if(data.product.length !== 0)
+    {
+      data.product.map((temp: { quantity: number; })=> count += temp.quantity);
+    }
+    }
+    return count;
+    //setTotalItems(count);
+  }
+
+  const calculateRevenue=() => {
+    let firstVal = 0;
+    let secondVal = 0;
+    let revenue: number = 0;
+    if(data != null)
+    {
+      if(data.customerOrder.length !== 0)
+      {
+        if(data.vendorOrder.length !== 0)
+        {
+          data.customerOrder.map((temp: { total_cost: number; }) => firstVal += temp.total_cost);
+          data.vendorOrder.map((temp: { total_cost: number; }) => secondVal += temp.total_cost);
+          revenue = firstVal - secondVal;
+        }
+      }
+      else
+      {
+        console.log("error");
+      }
+    }
+    console.log(revenue);
+    return revenue;
+  }
+ 
   useEffect(() => {
     reexecuteQuery({ requestPolicy: "network-only" });
+    countTotal();
+    calculateRevenue();
   }, [reexecuteQuery]);
+
+
 
   const navigate = useNavigate();
 
@@ -125,6 +168,7 @@ const Home = (props: Props) => {
       </div>
     </Modal>
   )}
+  
 
   return (
     <div className="w-screen">
@@ -153,8 +197,8 @@ const Home = (props: Props) => {
           {/* Info panel (you can put store information here) */}
           <div className="flex flex-col md:flex-row justify-center items-center space-y-5 md:space-y-0 md:space-x-5 border-2 rounded-lg m-5 p-5">
             <span className="p-5 bg-red-100">{data.storeName.store}</span>
-            <span className="p-5 bg-red-100">{data.product[0].quantity} Items</span> {/*Still needs to be fixed*/}
-            <span className="p-5 bg-red-100">${data.customerOrder.total_cost - data.vendorOrder.total_cost}</span>  {/*Still needs to be fixed*/}
+            <span className="p-5 bg-red-100">{countTotal()} Items</span> 
+            <span className="p-5 bg-red-100">${calculateRevenue()}</span>  {/*Still needs to be fixed*/}
             <button onClick={() => setFilterVisible(true)}><div className="p-5 bg-red-100">Create Report</div></button>
           </div>
         </div>
