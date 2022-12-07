@@ -92,7 +92,6 @@ const CreateCustomerOrder = (props: Props) => {
       customerData: customerOrder?.customer,
       userToken: customerOrder.userToken,
     });
-    console.log(addResult);
     if (addResult?.data?.customerOrderMutation?.ok) {
       setCustomerOrder(customerState);
       setMessage({

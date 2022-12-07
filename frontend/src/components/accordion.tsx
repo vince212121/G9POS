@@ -1,40 +1,25 @@
 import React, { useState } from "react";
 
-type Props = {};
+type Props = {
+  title: string;
+  children: any;
+};
 
-const Accordian = (props: Props) => {
-  const accordionData = {
-    title: "Question",
-    content: `Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quis sapiente
-          laborum cupiditate possimus labore, hic temporibus velit dicta earum
-          suscipit commodi eum enim atque at? Et perspiciatis dolore iure
-          voluptatem.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quis sapiente
-          laborum cupiditate possimus labore, hic temporibus velit dicta earum
-          suscipit commodi eum enim atque at? Et perspiciatis dolore iure
-          voluptatem.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quis sapiente
-          laborum cupiditate possimus labore, hic temporibus velit dicta earum
-          suscipit commodi eum enim atque at? Et perspiciatis dolore iure
-          voluptatem.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quis sapiente
-          laborum cupiditate possimus labore, hic temporibus velit dicta earum
-          suscipit commodi eum enim atque at? Et perspiciatis dolore iure
-          voluptatem.`,
-  };
-
-
-
-
-  const { title, content } = accordionData;
-
+const Accordian = ({ title, children }: Props) => {
   const [isActive, setIsActive] = useState(false);
 
   return (
-    <React.Fragment>
+    <>
       <div className="border-solid border-4 w-3/4">
         <div>
           <div onClick={() => setIsActive(!isActive)}>
-            <div className="flex flex-row bg-slate-200	">
+            <div
+              className={`flex flex-row bg-slate-200 p-2 ${
+                isActive ? "border-b border-gray-400" : ""
+              }`}
+            >
               {title}
-              <div>
+              <div className="ml-4">
                 {isActive ? (
                   <svg
                     className="w-6 h-6"
@@ -69,10 +54,10 @@ const Accordian = (props: Props) => {
               </div>
             </div>
           </div>
-          {isActive && <div className="bg-slate-200	">{content}</div>}
+          {isActive && <div className="bg-slate-200	px-4">{children}</div>}
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 export default Accordian;

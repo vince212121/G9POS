@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {};
 
-// TODO: Refer to terms and conditions for layout
-// TODO: either make a form with email and content or put text to send to a generic email ex. "donotuse@someemail.com"
 const ContactUs = (props: Props) => {
   const navigate = useNavigate();
   return (
@@ -14,23 +12,33 @@ const ContactUs = (props: Props) => {
       <form className="flex flex-col w-96">
         <label>
           Name:
-          <input className="border-solid border-2 ml-2 " type="text" name="name" />
+          <input
+            className="border-solid border-2 ml-2 "
+            type="text"
+            name="name"
+          />
         </label>
         <label>
-          Email:        
-          <input className="border-solid border-2 ml-2 w-48" type="text" name="email" />
+          Email:
+          <input
+            className="border-solid border-2 ml-2 w-48"
+            type="text"
+            name="email"
+          />
         </label>
-        <label>
-          How can we help you?
-        </label>
-        <input className="border-solid border-2 ml-2 h-96" type="text" name="inquiry" />
-        
+        <label>How can we help you?</label>
+        <input
+          className="border-solid border-2 ml-2 h-96"
+          type="text"
+          name="inquiry"
+        />
       </form>
-      <button className="border-solid border-2 w-40 justify-self-center"
-                          onClick={() => navigate("/email_sent")}
-        >
-          Submit
-        </button>
+      <button
+        className="border-solid border-2 w-40 justify-self-center"
+        onClick={() => navigate("/email_sent")}
+      >
+        Submit
+      </button>
     </div>
   );
 };

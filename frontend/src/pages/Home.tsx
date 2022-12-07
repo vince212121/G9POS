@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { gql, useQuery } from "urql";
 
@@ -53,61 +53,56 @@ type Props = {};
 
 const Home = (props: Props) => {
   const userToken = Cookies.get("token");
-  //const [totalItems, setTotalItems] = useState(0);
-  //const [data, setData] = useState([]);
   const [result, reexecuteQuery] = useQuery({
     query: GET_PAGE_DATA,
     variables: { userToken },
   });
   const { data, fetching, error } = result;
 
- console.log(data);
-
-  const countTotal=()=>{
+  const countTotal = useCallback(() => {
     let count = 0;
-    
-    if(data != null)
-    {
-      if(data.product.length !== 0)
-    {
-      data.product.map((temp: { quantity: number; })=> count += temp.quantity);
-    }
+
+    if (data != null) {
+      if (data.product.length !== 0) {
+        data.product.map(
+          (temp: { quantity: number }) => (count += temp.quantity)
+        );
+      }
     }
     return count;
-    //setTotalItems(count);
-  }
+  }, [data]);
 
-  const calculateRevenue=() => {
-    let firstVal = 0;
-    let secondVal = 0;
+  const calculateRevenue = useCallback(() => {
+    let customerTotal = 0;
+    let vendorTotal = 0;
     let revenue: number = 0;
-    if(data != null)
-    {
-      if(data.customerOrder.length !== 0)
-      {
-        if(data.vendorOrder.length !== 0)
-        {
-          data.customerOrder.map((temp: { total_cost: number; }) => firstVal += temp.total_cost);
-          data.vendorOrder.map((temp: { total_cost: number; }) => secondVal += temp.total_cost);
-          revenue = firstVal - secondVal;
+    if (data != null) {
+      if (data.customerOrder.length !== 0 && data.vendorOrder.length !== 0) {
+        // data.customerOrder.map(
+        //   // (temp: { total_cost: number }) => (firstVal += temp.total_cost)
+        // );
+        // data.vendorOrder.map(
+        //   (temp: { total_cost: number }) => (secondVal += temp.total_cost)
+        // );
+        // revenue = firstVal - secondVal;
+        for (let index = 0; index < data.customerOrder.length; index++) {
+          customerTotal += parseFloat(data.customerOrder[index].total_cost);
         }
-      }
-      else
-      {
-        console.log("error");
+
+        for (let index = 0; index < data.vendorOrder.length; index++) {
+          vendorTotal += parseFloat(data.vendorOrder[index].total_cost);
+        }
+        revenue = customerTotal - vendorTotal;
       }
     }
-    console.log(revenue);
     return revenue;
-  }
- 
+  }, [data]);
+
   useEffect(() => {
     reexecuteQuery({ requestPolicy: "network-only" });
-    countTotal();
-    calculateRevenue();
+    // countTotal();
+    // calculateRevenue();
   }, [reexecuteQuery]);
-
-
 
   const navigate = useNavigate();
 
@@ -130,48 +125,116 @@ const Home = (props: Props) => {
 
   const createReport = () => {
     setFilterVisible(false);
-  }
+  };
 
-  {/* Create report filter selection modal */}
-  { filterVisible && (
-    <Modal title="Create Report" setCloseModal={setFilterVisible}>
-      <div className="sm:h-[10rem] overflow-y-auto md:h-full">
-        <div className="p-6 space-y-6 flex flex-col">
-          <form className="flex flex-col space-y-6 overflow-y-auto">
-            <div className="space-x-10 flex justify-center items-center">
-              <div className="flex flex-col">
-                <label>
-                  <input type="checkbox" id="fItem1" checked={fItem1} onChange={() => setFItem1(!fItem1)} />
-                  Filter Item 1
-                </label>
-                <label>
-                  <input type="checkbox" id="fItem2" checked={fItem2} onChange={() => setFItem2(!fItem2)} />
-                  Filter Item 2
-                </label>
-                <label>
-                  <input type="checkbox" id="fItem3" checked={fItem3} onChange={() => setFItem3(!fItem3)} />
-                  Filter Item 3
-                </label>
-              </div>
-            </div>
-          </form>
-        </div>
-        {/* Modal footer */}
-        <ModalButtons
-          firstButtonClick={createReport}
-          firstButtonText="Create Report"
-          secondButtonClick={() => {
-            setFilterVisible(false);
-          }}
-          secondButtonText="Cancel"
-        />
-      </div>
-    </Modal>
-  )}
-  
+  // {
+  //   /* Create report filter selection modal */
+  // }
+  // {
+  //   filterVisible && (
+  //     <Modal title="Create Report" setCloseModal={setFilterVisible}>
+  //       <div className="sm:h-[10rem] overflow-y-auto md:h-full">
+  //         <div className="p-6 space-y-6 flex flex-col">
+  //           <form className="flex flex-col space-y-6 overflow-y-auto">
+  //             <div className="space-x-10 flex justify-center items-center">
+  //               <div className="flex flex-col">
+  //                 <label>
+  //                   <input
+  //                     type="checkbox"
+  //                     id="fItem1"
+  //                     checked={fItem1}
+  //                     onChange={() => setFItem1(!fItem1)}
+  //                   />
+  //                   Filter Item 1
+  //                 </label>
+  //                 <label>
+  //                   <input
+  //                     type="checkbox"
+  //                     id="fItem2"
+  //                     checked={fItem2}
+  //                     onChange={() => setFItem2(!fItem2)}
+  //                   />
+  //                   Filter Item 2
+  //                 </label>
+  //                 <label>
+  //                   <input
+  //                     type="checkbox"
+  //                     id="fItem3"
+  //                     checked={fItem3}
+  //                     onChange={() => setFItem3(!fItem3)}
+  //                   />
+  //                   Filter Item 3
+  //                 </label>
+  //               </div>
+  //             </div>
+  //           </form>
+  //         </div>
+  //         {/* Modal footer */}
+  //         <ModalButtons
+  //           firstButtonClick={createReport}
+  //           firstButtonText="Create Report"
+  //           secondButtonClick={() => {
+  //             setFilterVisible(false);
+  //           }}
+  //           secondButtonText="Cancel"
+  //         />
+  //       </div>
+  //     </Modal>
+  //   );
+  // }
 
   return (
     <div className="w-screen">
+      {filterVisible && (
+        <Modal title="Create Report" setCloseModal={setFilterVisible}>
+          <div className="sm:h-[10rem] overflow-y-auto md:h-full">
+            <div className="p-6 space-y-6 flex flex-col">
+              <form className="flex flex-col space-y-6 overflow-y-auto">
+                <div className="space-x-10 flex justify-center items-center">
+                  <div className="flex flex-col">
+                    <label>
+                      <input
+                        type="checkbox"
+                        id="fItem1"
+                        checked={fItem1}
+                        onChange={() => setFItem1(!fItem1)}
+                      />
+                      Filter Item 1
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        id="fItem2"
+                        checked={fItem2}
+                        onChange={() => setFItem2(!fItem2)}
+                      />
+                      Filter Item 2
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        id="fItem3"
+                        checked={fItem3}
+                        onChange={() => setFItem3(!fItem3)}
+                      />
+                      Filter Item 3
+                    </label>
+                  </div>
+                </div>
+              </form>
+            </div>
+            {/* Modal footer */}
+            <ModalButtons
+              firstButtonClick={createReport}
+              firstButtonText="Create Report"
+              secondButtonClick={() => {
+                setFilterVisible(false);
+              }}
+              secondButtonText="Cancel"
+            />
+          </div>
+        </Modal>
+      )}
       <div className="flex flex-wrap justify-center space-x-5 border-2 rounded-lg m-5 p-5">
         <div>
           <main>
@@ -197,9 +260,17 @@ const Home = (props: Props) => {
           {/* Info panel (you can put store information here) */}
           <div className="flex flex-col md:flex-row justify-center items-center space-y-5 md:space-y-0 md:space-x-5 border-2 rounded-lg m-5 p-5">
             <span className="p-5 bg-red-100">{data.storeName.store}</span>
-            <span className="p-5 bg-red-100">{countTotal()} Items</span> 
-            <span className="p-5 bg-red-100">${calculateRevenue()}</span>  {/*Still needs to be fixed*/}
-            <button onClick={() => setFilterVisible(true)}><div className="p-5 bg-red-100">Create Report</div></button>
+            <span className="p-5 bg-red-100">{countTotal()} Items</span>
+            <span className="p-5 bg-red-100">
+              {calculateRevenue().toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </span>
+            {/*Still needs to be fixed*/}
+            <button onClick={() => setFilterVisible(true)}>
+              <div className="p-5 bg-gray-700 text-white hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Create Report</div>
+            </button>
           </div>
         </div>
       </div>

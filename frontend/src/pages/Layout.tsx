@@ -6,7 +6,6 @@ const Layout = () => {
   return (
     <div className="flex flex-col justify-between">
       <Header />
-      {/* TODO: Add styling to the container */}
       <div className="flex overflow-x-auto">
         <Outlet />
       </div>
