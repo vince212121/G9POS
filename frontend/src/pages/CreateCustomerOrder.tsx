@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import Cookies from "js-cookie";
 import { gql, useMutation, useQuery } from "urql";
 import Error from "../components/Error";
@@ -118,7 +118,10 @@ const CreateCustomerOrder = (props: Props) => {
 
     if (index > -1) {
       setCustomerOrder({
-        items: customerOrder.items.splice(index, 1),
+        items: customerOrder.items.filter(
+          (customerItem: any) =>
+            customerItem.id !== item.id
+        ),
         total: customerOrder.total - parseFloat(item.price),
       });
     } else {

@@ -115,7 +115,10 @@ const CreateVendorOrder = (props: Props) => {
     );
     if (index > -1) {
       setVendorOrder({
-        items: vendorOrder.items.splice(index, 1),
+        items: vendorOrder.items.filter(
+          (customerItem: any) =>
+            customerItem.id !== item.id
+        ),
         total: vendorOrder.total - item.price * vendorOrder.quantityOrdered,
       });
     } else {
