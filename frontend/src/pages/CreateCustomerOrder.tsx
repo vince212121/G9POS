@@ -115,18 +115,16 @@ const CreateCustomerOrder = (props: Props) => {
       (customerItem: any) =>
         customerItem.name === item.name && customerItem.brand === item.brand
     );
+
     if (index > -1) {
       setCustomerOrder({
-        items: customerOrder.items.filter(
-          (customerItem: any) =>
-            customerItem.name !== item.name && customerItem.brand !== item.brand
-        ),
-        total: customerOrder.total - item.price,
+        items: customerOrder.items.splice(index, 1),
+        total: customerOrder.total - parseFloat(item.price),
       });
     } else {
       setCustomerOrder({
         items: [...customerOrder.items, item],
-        total: customerOrder.total + item.price,
+        total: customerOrder.total + parseFloat(item.price),
       });
     }
   };

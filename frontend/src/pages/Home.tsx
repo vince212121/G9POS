@@ -77,31 +77,38 @@ const Home = (props: Props) => {
     let vendorTotal = 0;
     let revenue: number = 0;
     if (data != null) {
-      if (data.customerOrder.length !== 0 && data.vendorOrder.length !== 0) {
-        // data.customerOrder.map(
-        //   // (temp: { total_cost: number }) => (firstVal += temp.total_cost)
-        // );
-        // data.vendorOrder.map(
-        //   (temp: { total_cost: number }) => (secondVal += temp.total_cost)
-        // );
-        // revenue = firstVal - secondVal;
+      if (data.customerOrder.length !== 0) {
+
         for (let index = 0; index < data.customerOrder.length; index++) {
           customerTotal += parseFloat(data.customerOrder[index].total_cost);
         }
-
+      }
+      if (data.vendorOrder.length !== 0)
+      {
         for (let index = 0; index < data.vendorOrder.length; index++) {
           vendorTotal += parseFloat(data.vendorOrder[index].total_cost);
         }
-        revenue = customerTotal - vendorTotal;
       }
+
+      revenue = customerTotal - vendorTotal;
     }
     return revenue;
   }, [data]);
 
+  const calculateTotal = useCallback(() => {
+    let total = 0;
+    if (data != null) {
+      if (data.customerOrder.length !== 0) {
+        for (let index = 0; index < data.customerOrder.length; index++) {
+          total += parseFloat(data.customerOrder[index].total_cost);
+        }
+      }
+    }
+    return total;
+  }, [data]);
+
   useEffect(() => {
     reexecuteQuery({ requestPolicy: "network-only" });
-    // countTotal();
-    // calculateRevenue();
   }, [reexecuteQuery]);
 
   const navigate = useNavigate();
@@ -124,6 +131,7 @@ const Home = (props: Props) => {
   if (error) return <Error />;
 
   const createReport = () => {
+
     setFilterVisible(false);
   };
 
@@ -262,7 +270,13 @@ const Home = (props: Props) => {
             <span className="p-5 bg-red-100">{data.storeName.store}</span>
             <span className="p-5 bg-red-100">{countTotal()} Items</span>
             <span className="p-5 bg-red-100">
-              {calculateRevenue().toLocaleString("en-US", {
+              Sales: {calculateTotal().toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </span>
+            <span className="p-5 bg-red-100">
+              Revenue: {calculateRevenue().toLocaleString("en-US", {
                 style: "currency",
                 currency: "USD",
               })}
