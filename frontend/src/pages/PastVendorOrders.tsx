@@ -161,7 +161,7 @@ const PastVendorOrders = ({}: Props) => {
       setVendor({
         items: vendor.items.filter(
           (vendorItem: any) =>
-            vendorItem.name !== item.name && vendorItem.brand !== item.brand
+            vendorItem.id !== item.id
         ),
       });
     } else {

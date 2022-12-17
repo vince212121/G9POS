@@ -165,11 +165,12 @@ const PastCustomerOrders = (props: Props) => {
       (customerItem: any) =>
         customerItem.name === item.name && customerItem.brand === item.brand
     );
+
     if (index > -1) {
       setCustomer({
         items: customer.items.filter(
           (customerItem: any) =>
-            customerItem.name !== item.name && customerItem.brand !== item.brand
+            customerItem.id !== item.id
         ),
       });
     } else {
@@ -222,6 +223,13 @@ const PastCustomerOrders = (props: Props) => {
                     ))}
                   </select>
                 </div>
+                <button
+                onClick={() => {
+                  console.log(customer)
+                  console.log(customer.items)
+                }}>
+                  Show
+                </button>
                 <div className="flex justify-center items-center">
                   <span className="mr-16">Items</span>
                   <div className="bg-white flex flex-col space-y-2 overflow-y-auto w-full">
