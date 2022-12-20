@@ -1,5 +1,7 @@
 # G9POS
 Point of sale application
+* Back-end created with Python, Django, and GraphQL
+* Front-end created with React and TypeScipt
 
 ## To run with Docker
 1. Install docker desktop
