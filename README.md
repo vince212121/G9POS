@@ -1,5 +1,5 @@
 # G9POS
-Point of sale application
+Point of sale application created with two other group members
 * Back-end created with Python, Django, and GraphQL
 * Front-end created with React and TypeScipt
 
